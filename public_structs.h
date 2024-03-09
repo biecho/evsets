@@ -1,12 +1,6 @@
 #ifndef public_structs_H
 #define public_structs_H
 
-#define ALGORITHM_NAIVE 0
-#define ALGORITHM_GROUP 1
-#define ALGORITHM_BINARY 2
-#define ALGORITHM_LINEAR 3
-#define ALGORITHM_NAIVE_OPTIMISTIC 4
-
 #define STRATEGY_SIMPLE 2
 
 typedef struct cache_block_t {
@@ -25,7 +19,6 @@ struct config {
 	int cache_way;
 	int cache_slices;
 	int threshold;
-	int algorithm;
 	int strategy;
 	int offset;
 	void (*traverse)(cache_block_t *);

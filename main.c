@@ -25,7 +25,6 @@ struct config conf = {
 	.cache_size = 12 << 20,
 	.cache_way = 12,
 	.cache_slices = 6,
-	.algorithm = ALGORITHM_GROUP,
 	.strategy = 2,
 	.offset = 0,
 	.buffer_size = 3072,
@@ -247,7 +246,6 @@ main()
 	conf.cache_size = 12 << 20;
 	conf.cache_way = 16;
 	conf.stride = 4096;
-	conf.algorithm = ALGORITHM_GROUP;
 	conf.strategy = 2;
 	conf.offset = 0;
 	conf.cache_slices = 6;
