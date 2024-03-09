@@ -228,10 +228,6 @@ find_evsets()
 		return 1;
 	}
 
-	if (conf.algorithm == ALGORITHM_LINEAR) {
-		victim = NULL;
-	}
-
 	clock_t tts, tte;
 	int rep = 0;
 	tts = clock();
@@ -247,8 +243,7 @@ pick:
 		printf("[+] Compute conflict set: %d\n", list_length(can));
 		victim = (char *)ptr;
 		ptr = can; // new conflict set
-		while (victim &&
-		       !tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse)) {
+		while (victim && !tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse)) {
 			victim = (char *)(((cache_block_t *)victim)->next);
 		}
 		can = NULL;
@@ -271,11 +266,8 @@ pick:
 		}
 	}
 
-	if (conf.algorithm == ALGORITHM_LINEAR) {
-		ret = test_and_time(ptr, conf.rounds, conf.threshold, conf.cache_way, conf.traverse);
-	} else if (victim) {
-		ret = tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse);
-	}
+	ret = tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse);
+
 	if ((victim || conf.algorithm == ALGORITHM_LINEAR) && ret) {
 		printf("[+] Initial candidate set evicted victim\n");
 		// rep = 0;
@@ -301,15 +293,10 @@ pick:
 	do {
 		printf("[+] Created linked list structure (%d elements)\n", list_length(ptr));
 
-		// Search
-		switch (conf.algorithm) {
-		case ALGORITHM_GROUP:
-			printf("[+] Starting group reduction...\n");
-			ts = clock();
-			ret = gt_eviction(&ptr, &can, victim);
-			te = clock();
-			break;
-		}
+		printf("[+] Starting group reduction...\n");
+		ts = clock();
+		ret = gt_eviction(&ptr, &can, victim);
+		te = clock();
 
 		tte = clock();
 
@@ -322,14 +309,9 @@ pick:
 			       ((double)(tte - tts)) / CLOCKS_PER_SEC);
 
 			// Re-Check that it's an optimal eviction set
-			if (conf.algorithm != ALGORITHM_LINEAR) {
-				printf("[+] (ID=%d) Found minimal eviction set for %p (length=%d): ", id,
-				       (void *)victim, len);
-				print_list(ptr);
-			} else {
-				printf("[+] (ID=%d) Found a minimal eviction set (length=%d): ", id, len);
-				print_list(ptr);
-			}
+			printf("[+] (ID=%d) Found minimal eviction set for %p (length=%d): ", id,
+			       (void *)victim, len);
+			print_list(ptr);
 			evsets[id] = ptr;
 			num_evsets += 1;
 		}
@@ -517,8 +499,8 @@ main(int argc, char **argv)
 						{ "noncon", no_argument, 0, 'y' },
 						{ 0, 0, 0, 0 } };
 
-	while ((option = getopt_long(argc, argv, "hb:t:c:s:n:o:a:e:r:C:x:y:", long_options,
-				     &option_index)) != -1) {
+	while ((option = getopt_long(argc, argv, "hb:t:c:s:n:o:a:e:r:C:x:y:", long_options, &option_index)) !=
+	       -1) {
 		switch (option) {
 		case 0:
 			break;
@@ -646,5 +628,4 @@ err:
 	munmap(probe, pool_sz);
 	munmap(pool, pool_sz);
 	return 1;
-
 }
