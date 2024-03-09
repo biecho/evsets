@@ -144,7 +144,7 @@ pick:
 	set = (cache_block_t *)&pool[0];
 	initialize_list(set, pool_sz);
 
-	int n = conf.buffer_size;
+	int n = conf.initial_set_size;
 	printf("[+] Pick %d random from list\n", n);
 	pick_n_random_from_list(set, conf.stride, pool_sz, n);
 	if (list_length(set) != n) {
@@ -236,10 +236,10 @@ main()
 		.cache_size = 12 << 20,
 		.cache_way = 16,
 		.cache_slices = 6,
-		.buffer_size = 3072,
+		.initial_set_size = 4096,
 	};
 
-	unsigned long long sz = conf.buffer_size * conf.stride;
+	unsigned long long sz = conf.initial_set_size * conf.stride;
 	unsigned long long pool_sz = 128 << 20; // 128MB
 
 	printf("[+] Total buffer size required: %llu bytes\n", sz);
@@ -250,15 +250,16 @@ main()
 		return 1;
 	}
 
-	char *pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE,
+	char *buffer = (char *)mmap(NULL, 1 << 30, PROT_READ | PROT_WRITE,
 				  MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
-	char *probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE,
-				   MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
-
-	if (pool == MAP_FAILED || probe == MAP_FAILED) {
+	if (buffer == MAP_FAILED) {
 		printf("[!] Error: Memory allocation failed\n");
 		return 1;
 	}
+
+    char* pool = &buffer[0];
+    char* probe = &buffer[1 << 29];
+
 
 	printf("[+] Memory allocated successfully: Pool at %p, Probe at %p\n", (void *)pool, (void *)probe);
 	printf("[+] %llu MB buffer allocated at %p (%llu blocks)\n", sz >> 20, (void *)&pool[0],

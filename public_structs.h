@@ -13,7 +13,7 @@ struct config {
 	int rounds, cal_rounds;
 	int stride;
 	int cache_size;
-	int buffer_size;
+	int initial_set_size;
 	int cache_way;
 	int cache_slices;
 	int threshold;
