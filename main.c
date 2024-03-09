@@ -123,10 +123,6 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim, int cache_wa
 	return 0;
 }
 
-static cache_block_t **evsets = NULL;
-static int num_evsets = 0;
-static int colors = 0;
-
 int
 find_evsets(char *pool, unsigned long pool_sz, char *victim, struct config conf)
 {
@@ -170,7 +166,6 @@ pick:
 	clock_t ts, te;
 
 	int len = 0;
-	int id = num_evsets;
 	// Iterate over all colors of conf.offset
 	do {
 		printf("[+] Created linked list structure (%d elements)\n", list_length(set));
@@ -191,11 +186,9 @@ pick:
 			       ((double)(tte - tts)) / CLOCKS_PER_SEC);
 
 			// Re-Check that it's an optimal eviction set
-			printf("[+] (ID=%d) Found minimal eviction set for %p (length=%d): ", id,
+			printf("[+] Found minimal eviction set for %p (length=%d): ", 
 			       (void *)victim, len);
 			print_list(set);
-			evsets[id] = set;
-			num_evsets += 1;
 		}
 
 		if (ret) {
@@ -217,7 +210,6 @@ pick:
 		}
 
 		// Remove rest of congruent elements
-		list_set_id(evsets[id], id);
 		set = can;
 		printf("You do not want to find all, right? ----------------------\n");
 		break;
@@ -253,8 +245,7 @@ main()
 	}
 
     char* pool = &buffer[0];
-    char* probe = &buffer[1 << 29];
-	char *victim = &probe[0];
+    char* victim = &buffer[1 << 29];
 
 	conf.threshold = calibrate(victim, &conf);
 	printf("[+] Calibrated Threshold = %d\n", conf.threshold);
@@ -264,20 +255,10 @@ main()
 		return 1;
 	}
 
-	colors = conf.cache_size / conf.cache_way / conf.stride;
-	evsets = calloc(colors, sizeof(cache_block_t *));
-	if (!evsets) {
-		printf("[!] Error: Failed to allocate memory for eviction sets\n");
-		goto err;
-	}
-	printf("[+] Eviction sets allocated for %d colors\n", colors);
-
-
 	if (find_evsets(pool, pool_sz, victim, conf)) {
 		printf("[-] Could not find all desired eviction sets.\n");
 	}
 
-	free(evsets);
 	munmap(buffer, 1 << 30);
 
 	return 0;
