@@ -255,35 +255,11 @@ pick:
 		// Remove rest of congruent elements
 		list_set_id(evsets[id], id);
 		set = can;
-		if (conf.flags & FLAG_FINDALLCONGRUENT) {
-			cache_block_t *e = NULL, *head = NULL, *done = NULL, *tmp = NULL;
-			int count = 0, t = 0;
-			while (set) {
-				e = list_pop(&set);
-				t = tests_avg(evsets[id], (char *)e, conf.rounds, threshold);
-				if (t) {
-					// create list of congruents
-					e->set = id;
-					count++;
-					list_push(&head, e);
-				} else {
-					list_push(&done, e);
-				}
-			}
-			if (tmp) {
-				tmp->next = NULL;
-			}
-			printf("[+] Found %d more congruent elements from set id=%d\n", count, id);
-			list_concat(&evsets[id], head);
-			set = done;
-		}
-
 		if (!(conf.flags & FLAG_FINDALLCOLORS)) {
 			printf("You do not want to find all, right? ----------------------\n");
 			break;
 		}
-	} while (((conf.flags & FLAG_FINDALLCOLORS) && id < colors) ||
-		 ((conf.flags & FLAG_RETRY) && rep < MAX_REPS));
+	} while (((conf.flags & FLAG_RETRY) && rep < MAX_REPS));
 
 	return ret;
 }
