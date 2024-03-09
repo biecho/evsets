@@ -300,7 +300,7 @@ pick:
 	// Conflict set incompatible with ANY case (don't needed)
 	if ((conf.flags & FLAG_CONFLICTSET) && (conf.algorithm != ALGORITHM_LINEAR)) {
 		pick_n_random_from_list(ptr, conf.stride, pool_sz, conf.offset, conf.buffer_size);
-		generate_conflict_set(&ptr, &can);
+		generate_conflict_set(&ptr, &can, conf.rounds, conf.threshold, conf.traverse);
 		printf("[+] Compute conflict set: %d\n", list_length(can));
 		victim = (char *)ptr;
 		ptr = can; // new conflict set

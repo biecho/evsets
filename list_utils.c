@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern struct config conf;
-
 int
 list_length(cache_block_t *ptr)
 {
@@ -336,14 +334,15 @@ list_set_id(cache_block_t *ptr, int id)
 }
 
 void
-generate_conflict_set(cache_block_t **ptr, cache_block_t **out)
+generate_conflict_set(cache_block_t **ptr, cache_block_t **out, int rep, int threshold, void (*traverse)(cache_block_t *))
 {
 	cache_block_t *candidate = NULL, *res = NULL;
 	int ret = 0;
 	while (*ptr) // or while size |out| == limit
 	{
 		candidate = list_pop(ptr);
-		ret = tests_avg(*out, (char *)candidate, conf.rounds, conf.threshold, conf.traverse);
+		// ret = tests_avg(*out, (char *)candidate, conf.rounds, conf.threshold, conf.traverse);
+		ret = tests_avg(*out, (char *)candidate, rep, threshold, traverse);
 		if (!ret) {
 			// no conflict, add element
 			list_push(out, candidate);
