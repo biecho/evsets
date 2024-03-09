@@ -54,6 +54,7 @@ struct config configuration = {
 	.noncon = 0,
 	.buffer_size = 3072,
 	.flags = FLAG_CALIBRATE,
+	.traverse = &traverse_list_simple,
 };
 
 #define MAX_REPS_BACK 100
@@ -87,7 +88,6 @@ init_evsets(struct config *conf_ptr)
 		return 1;
 	}
 
-	printf("[*] HugePages used if available\n");
 	pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,
 			    0, 0);
 	probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,
@@ -108,16 +108,6 @@ init_evsets(struct config *conf_ptr)
 		goto err;
 	}
 
-	// Set eviction strategy
-	printf("[*] Setting eviction strategy based on configuration\n");
-	switch (conf.strategy) {
-	case STRATEGY_SIMPLE:
-	default:
-		printf("[+] Using simple list traversal strategy (default)\n");
-		conf.traverse = &traverse_list_simple;
-		break;
-	}
-
 	colors = conf.cache_size / conf.cache_way / conf.stride;
 	printf("[+] conf.cache_size = %d, conf.cache_way = %d, conf.stride = %d, colors = %d\n",
 	       conf.cache_size, conf.cache_way, conf.stride, colors);
@@ -133,10 +123,6 @@ init_evsets(struct config *conf_ptr)
 err:
 	munmap(probe, pool_sz);
 	munmap(pool, pool_sz);
-#ifdef THREAD_COUNTER
-	printf("[*] Cleaning up thread counter\n");
-	destroy_counter();
-#endif /* THREAD_COUNTER */
 	return 1;
 }
 
