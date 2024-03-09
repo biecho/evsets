@@ -229,6 +229,9 @@ pick:
 int
 main()
 {
+	int seed = time(NULL);
+	srand(seed);
+
 	struct config conf = {
 		.rounds = 10,
 		.cal_rounds = 1000000,
@@ -242,14 +245,6 @@ main()
 	unsigned long long sz = conf.initial_set_size * conf.stride;
 	unsigned long long pool_sz = 128 << 20; // 128MB
 
-	printf("[+] Total buffer size required: %llu bytes\n", sz);
-	printf("[+] Memory pool size allocated: %llu bytes (128MB)\n", pool_sz);
-
-	if (sz > pool_sz) {
-		printf("[!] Error: Buffer size %llu exceeds allocated pool size %llu\n", sz, pool_sz);
-		return 1;
-	}
-
 	char *buffer = (char *)mmap(NULL, 1 << 30, PROT_READ | PROT_WRITE,
 				  MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
 	if (buffer == MAP_FAILED) {
@@ -259,25 +254,7 @@ main()
 
     char* pool = &buffer[0];
     char* probe = &buffer[1 << 29];
-
-
-	printf("[+] Memory allocated successfully: Pool at %p, Probe at %p\n", (void *)pool, (void *)probe);
-	printf("[+] %llu MB buffer allocated at %p (%llu blocks)\n", sz >> 20, (void *)&pool[0],
-	       sz / sizeof(cache_block_t));
-
-	colors = conf.cache_size / conf.cache_way / conf.stride;
-	printf("[+] conf.cache_size = %d, conf.cache_way = %d, conf.stride = %d, colors = %d\n",
-	       conf.cache_size, conf.cache_way, conf.stride, colors);
-	evsets = calloc(colors, sizeof(cache_block_t *));
-	if (!evsets) {
-		printf("[!] Error: Failed to allocate memory for eviction sets\n");
-		goto err;
-	}
-	printf("[+] Eviction sets allocated for %d colors\n", colors);
-
 	char *victim = &probe[0];
-	int seed = time(NULL);
-	srand(seed);
 
 	conf.threshold = calibrate(victim, &conf);
 	printf("[+] Calibrated Threshold = %d\n", conf.threshold);
@@ -287,18 +264,24 @@ main()
 		return 1;
 	}
 
+	colors = conf.cache_size / conf.cache_way / conf.stride;
+	evsets = calloc(colors, sizeof(cache_block_t *));
+	if (!evsets) {
+		printf("[!] Error: Failed to allocate memory for eviction sets\n");
+		goto err;
+	}
+	printf("[+] Eviction sets allocated for %d colors\n", colors);
+
+
 	if (find_evsets(pool, pool_sz, victim, conf)) {
 		printf("[-] Could not find all desired eviction sets.\n");
 	}
 
 	free(evsets);
-	munmap(probe, pool_sz);
-	munmap(pool, pool_sz);
+	munmap(buffer, 1 << 30);
 
 	return 0;
-
 err:
-	munmap(probe, pool_sz);
-	munmap(pool, pool_sz);
+	munmap(buffer, 1 << 30);
 	return 1;
 }
