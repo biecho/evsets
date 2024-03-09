@@ -260,7 +260,6 @@ usage(char *name)
 	       "\t\t--backtracking\n"
 	       "\t\t--verbose\n"
 	       "\t\t--verify\t(requires root)\n"
-	       "\t\t--ignoreslice\t(unknown slicing function)\n"
 	       "\t\t--findallcolors\n"
 	       "\t\t--findallcongruent\n"
 	       "\t\t--conflictset\n"
@@ -289,13 +288,12 @@ main(int argc, char **argv)
 {
 	int option = 0, option_index = 0;
 
-	static struct option long_options[] = { { "nohugepages", no_argument, 0, FLAG_NOHUGEPAGES ^ KEY },
+	static struct option long_options[] = { 
 						{ "retry", no_argument, 0, FLAG_RETRY ^ KEY },
 						{ "backtracking", no_argument, 0, FLAG_BACKTRACKING ^ KEY },
 						{ "verbose", no_argument, 0, FLAG_VERBOSE ^ KEY },
 						{ "verify", no_argument, 0, FLAG_VERIFY ^ KEY },
 						{ "debug", no_argument, 0, FLAG_DEBUG ^ KEY },
-						{ "ignoreslice", no_argument, 0, FLAG_IGNORESLICE ^ KEY },
 						{ "findallcolors", no_argument, 0, FLAG_FINDALLCOLORS ^ KEY },
 						{ "findallcongruent", no_argument, 0,
 						  FLAG_FINDALLCONGRUENT ^ KEY },

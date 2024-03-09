@@ -10,10 +10,8 @@
 #define STRATEGY_SIMPLE 2
 
 #define FLAG_VERBOSE (1 << 0)
-#define FLAG_NOHUGEPAGES (1 << 1)
 #define FLAG_RETRY (1 << 3)
 #define FLAG_BACKTRACKING (1 << 4)
-#define FLAG_IGNORESLICE (1 << 5)
 #define FLAG_FINDALLCOLORS (1 << 6)
 #define FLAG_FINDALLCONGRUENT (1 << 7)
 #define FLAG_VERIFY (1 << 8)

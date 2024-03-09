@@ -95,12 +95,6 @@ Print some detailed info of the reduction status.
 
 Only works on Linux and requires root privileges. Will translate the virtual addresses of the eviction sets in order to verify that set index and slice match.
 
-### `--ignoreslice`
-
-By default we rely on Intel reverse engineered slice functions, which have proved to work well on Haswell, Broadwell, Skylake, and Kaby Lake R systems.
-
-If the system use a different slicing, this flag disables the check.
-
 ### `--findallcolors`
 
 After finding a minimal eviction set, will remove it from the initial buffer and iterate to find other eviction sets.
