@@ -78,14 +78,6 @@ init_evsets(struct config *conf_ptr)
 	memcpy(&conf, conf_ptr, sizeof(struct config));
 	printf("[+] Configuration loaded\n");
 
-#ifdef THREAD_COUNTER
-	printf("[*] Thread counter enabled\n");
-	if (create_counter()) {
-		printf("[!] Error: Failed to create thread counter\n");
-		return 1;
-	}
-#endif /* THREAD_COUNTER */
-
 	sz = conf.buffer_size * conf.stride;
 	pool_sz = 128 << 20; // 128MB
 	printf("[+] Total buffer size required: %llu bytes\n", sz);
@@ -96,26 +88,11 @@ init_evsets(struct config *conf_ptr)
 		return 1;
 	}
 
-	if (conf.flags & FLAG_NOHUGEPAGES) {
-		printf("[*] HugePages not used\n");
-		pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-		probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0,
-				     0);
-	} else {
-		printf("[*] HugePages used if available\n");
-		pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE,
-				    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
-		probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE,
-				     MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
-#ifdef VM_FLAGS_SUPERPAGE_SIZE_2MB
-		// Specific handling for macOS, showing usage of superpages if applicable.
-		printf("[*] macOS specific: Using superpages if available\n");
-		pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON,
-				    VM_FLAGS_SUPERPAGE_SIZE_2MB, 0);
-		probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON,
-				     VM_FLAGS_SUPERPAGE_SIZE_2MB, 0);
-#endif
-	}
+	printf("[*] HugePages used if available\n");
+	pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE,
+				MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
+	probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE,
+					MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
 
 	if (pool == MAP_FAILED || probe == MAP_FAILED) {
 		printf("[!] Error: Memory allocation failed\n");
