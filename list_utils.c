@@ -334,7 +334,8 @@ list_set_id(cache_block_t *ptr, int id)
 }
 
 void
-generate_conflict_set(cache_block_t **ptr, cache_block_t **out, int rep, int threshold, void (*traverse)(cache_block_t *))
+generate_conflict_set(cache_block_t **ptr, cache_block_t **out, int rep, int threshold,
+		      void (*traverse)(cache_block_t *))
 {
 	cache_block_t *candidate = NULL, *res = NULL;
 	int ret = 0;

@@ -304,8 +304,7 @@ pick:
 		printf("[+] Compute conflict set: %d\n", list_length(can));
 		victim = (char *)ptr;
 		ptr = can; // new conflict set
-		while (victim &&
-		       !tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse)) {
+		while (victim && !tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse)) {
 			victim = (char *)(((cache_block_t *)victim)->next);
 		}
 		can = NULL;
@@ -574,8 +573,8 @@ main(int argc, char **argv)
 						{ "noncon", no_argument, 0, 'y' },
 						{ 0, 0, 0, 0 } };
 
-	while ((option = getopt_long(argc, argv, "hb:t:c:s:n:o:a:e:r:C:x:y:", long_options,
-				     &option_index)) != -1) {
+	while ((option = getopt_long(argc, argv, "hb:t:c:s:n:o:a:e:r:C:x:y:", long_options, &option_index)) !=
+	       -1) {
 		switch (option) {
 		case 0:
 			break;
