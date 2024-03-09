@@ -239,7 +239,7 @@ pick:
 				} else {
 					// reshuffle list or change victim?
 					printf("[!] Error: try new victim\n");
-					goto next;
+					break;
 					// continue;
 				}
 			} else {
@@ -279,58 +279,9 @@ pick:
 		}
 
 		if (!(conf.flags & FLAG_FINDALLCOLORS)) {
+			printf("You do not want to find all, right? ----------------------\n");
 			break;
 		}
-		printf("----------------------\n");
-		id = id + 1;
-		if (id == colors || !set || ((conf.flags & FLAG_CONFLICTSET) && !victim) ||
-		    (!(conf.flags & FLAG_CONFLICTSET) && victim >= probe + pool_sz - conf.stride)) {
-			printf("[+] Found all eviction sets in buffer\n");
-			break;
-		}
-
-	next:
-		// Find victim for different color. Only for specific algorithms.
-		if (conf.algorithm != ALGORITHM_LINEAR) {
-			int s = 0, ret = 0, ret2 = 0;
-			do {
-				if (!(conf.flags & FLAG_CONFLICTSET)) {
-					victim += conf.stride;
-					*victim = 0;
-				} else {
-					victim = (char *)((cache_block_t *)victim)->next;
-				}
-
-				// Check again. Better reorganize this mess.
-				if (((conf.flags & FLAG_CONFLICTSET) && !victim) ||
-				    (!(conf.flags & FLAG_CONFLICTSET) &&
-				     victim >= probe + pool_sz - conf.stride)) {
-					break;
-				}
-
-				// New victim is not evicted by previous eviction sets
-				for (ret = 0, s = 0; s < id && !ret; s++) {
-					ret = tests_avg(evsets[s], victim, conf.rounds, threshold);
-				}
-				if (!ret) {
-					// Rest of initial eviction set can evict victim
-					ret2 = tests_avg(set, victim, conf.rounds, threshold);
-				}
-			} while ((list_length(set) > conf.cache_way) && !ret2 &&
-				 (((conf.flags & FLAG_CONFLICTSET) && victim) ||
-				  (!(conf.flags & FLAG_CONFLICTSET) &&
-				   (victim < (probe + pool_sz - conf.stride)))));
-
-			if (ret2) {
-				printf("[+] Found new victim %p\n", (void *)victim);
-			} else {
-				printf("[!] Error: couldn't find more victims\n");
-				return 1;
-			}
-		}
-
-		can = NULL;
-
 	} while (((conf.flags & FLAG_FINDALLCOLORS) && id < colors) ||
 		 ((conf.flags & FLAG_RETRY) && rep < MAX_REPS));
 
