@@ -282,34 +282,10 @@ pick:
 
 		// Search
 		switch (conf.algorithm) {
-		case ALGORITHM_NAIVE:
-			printf("[+] Starting naive reduction...\n");
-			ts = clock();
-			ret = naive_eviction(&ptr, &can, victim);
-			te = clock();
-			break;
-		case ALGORITHM_NAIVE_OPTIMISTIC:
-			printf("[+] Starting optimistic naive reduction...\n");
-			ts = clock();
-			ret = naive_eviction_optimistic(&ptr, &can, victim);
-			te = clock();
-			break;
 		case ALGORITHM_GROUP:
 			printf("[+] Starting group reduction...\n");
 			ts = clock();
 			ret = gt_eviction(&ptr, &can, victim);
-			te = clock();
-			break;
-		case ALGORITHM_BINARY:
-			printf("[+] Starting binary group reduction...\n");
-			ts = clock();
-			ret = binary_eviction(&ptr, &can, victim);
-			te = clock();
-			break;
-		case ALGORITHM_LINEAR:
-			printf("[+] Starting linear reduction...\n");
-			ts = clock();
-			ret = gt_eviction_any(&ptr, &can);
 			te = clock();
 			break;
 		}
