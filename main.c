@@ -2,7 +2,6 @@
 #include "hist_utils.h"
 #include "list_utils.h"
 #include "public_structs.h"
-#include "utils.h"
 #include <fcntl.h>
 #include <getopt.h>
 #include <math.h>
@@ -19,6 +18,20 @@
 
 #define MAX_REPS_BACK 100
 #define MAX_REPS 50
+
+void
+shuffle(int *array, size_t n)
+{
+	size_t i;
+	if (n > 1) {
+		for (i = 0; i < n - 1; i++) {
+			size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
+			int t = array[j];
+			array[j] = array[i];
+			array[i] = t;
+		}
+	}
+}
 
 int
 gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim, int cache_way, int rounds, int threshold)
