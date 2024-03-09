@@ -40,7 +40,7 @@
 #include <math.h>
 #include <stdio.h>
 
-struct config configuration = {
+struct config conf = {
 	.rounds = 10,
 	.cal_rounds = 1000000,
 	.stride = 4096,
@@ -61,8 +61,6 @@ struct config configuration = {
 
 #define MAX_REPS 50
 
-struct config conf;
-
 static cache_block_t **evsets = NULL;
 static int num_evsets = 0;
 static int colors = 0;
@@ -72,12 +70,8 @@ static ul pool_sz = 0;
 static ul sz = 0;
 
 int
-init_evsets(struct config *conf_ptr)
+init_evsets()
 {
-	// save config
-	memcpy(&conf, conf_ptr, sizeof(struct config));
-	printf("[+] Configuration loaded\n");
-
 	sz = conf.buffer_size * conf.stride;
 	pool_sz = 128 << 20; // 128MB
 	printf("[+] Total buffer size required: %llu bytes\n", sz);
@@ -304,7 +298,8 @@ pick:
 		printf("[+] Compute conflict set: %d\n", list_length(can));
 		victim = (char *)ptr;
 		ptr = can; // new conflict set
-		while (victim && !tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse)) {
+		while (victim &&
+		       !tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse)) {
 			victim = (char *)(((cache_block_t *)victim)->next);
 		}
 		can = NULL;
@@ -573,72 +568,72 @@ main(int argc, char **argv)
 						{ "noncon", no_argument, 0, 'y' },
 						{ 0, 0, 0, 0 } };
 
-	while ((option = getopt_long(argc, argv, "hb:t:c:s:n:o:a:e:r:C:x:y:", long_options, &option_index)) !=
-	       -1) {
+	while ((option = getopt_long(argc, argv, "hb:t:c:s:n:o:a:e:r:C:x:y:", long_options,
+				     &option_index)) != -1) {
 		switch (option) {
 		case 0:
 			break;
 		case 'b':
-			configuration.buffer_size = atoi(optarg);
+			conf.buffer_size = atoi(optarg);
 			break;
 		case 't':
-			configuration.flags &= ~FLAG_CALIBRATE;
-			configuration.threshold = atoi(optarg);
+			conf.flags &= ~FLAG_CALIBRATE;
+			conf.threshold = atoi(optarg);
 			break;
 		case 'c':
-			configuration.cache_size = atoi(optarg) << 20;
+			conf.cache_size = atoi(optarg) << 20;
 			break;
 		case 's':
-			configuration.cache_slices = atoi(optarg);
-			if (configuration.cache_slices < 1 || configuration.cache_slices % 2) {
+			conf.cache_slices = atoi(optarg);
+			if (conf.cache_slices < 1 || conf.cache_slices % 2) {
 				printf("[-] Invalid number of slices\n");
-				configuration.cache_slices = 1;
-			} else if (configuration.cache_slices > 8) {
+				conf.cache_slices = 1;
+			} else if (conf.cache_slices > 8) {
 				printf("[-] No support for more than 8 slices\n");
-				configuration.cache_slices = 8;
+				conf.cache_slices = 8;
 			}
 			break;
 		case 'n':
-			configuration.cache_way = atoi(optarg);
-			if (configuration.cache_way < 1) {
-				configuration.cache_way = 1;
+			conf.cache_way = atoi(optarg);
+			if (conf.cache_way < 1) {
+				conf.cache_way = 1;
 			}
 			break;
 		case 'o':
-			configuration.stride = atoi(optarg);
+			conf.stride = atoi(optarg);
 			break;
 		case 'a':
 			if (strncmp(optarg, "g", strlen(optarg)) == 0) {
-				configuration.algorithm = ALGORITHM_GROUP;
+				conf.algorithm = ALGORITHM_GROUP;
 			} else if (strncmp(optarg, "b", strlen(optarg)) == 0) {
-				configuration.algorithm = ALGORITHM_BINARY;
+				conf.algorithm = ALGORITHM_BINARY;
 			} else if (strncmp(optarg, "l", strlen(optarg)) == 0) {
-				configuration.algorithm = ALGORITHM_LINEAR;
+				conf.algorithm = ALGORITHM_LINEAR;
 			} else if (strncmp(optarg, "n", strlen(optarg)) == 0) {
-				configuration.algorithm = ALGORITHM_NAIVE;
+				conf.algorithm = ALGORITHM_NAIVE;
 			} else if (strncmp(optarg, "o", strlen(optarg)) == 0) {
-				configuration.algorithm = ALGORITHM_NAIVE_OPTIMISTIC;
+				conf.algorithm = ALGORITHM_NAIVE_OPTIMISTIC;
 			}
 			break;
 		case 'e':
-			configuration.strategy = atoi(optarg);
+			conf.strategy = atoi(optarg);
 			break;
 		case 'C':
-			configuration.offset = atoi(optarg);
+			conf.offset = atoi(optarg);
 			break;
 		case 'r':
-			configuration.rounds = atoi(optarg);
+			conf.rounds = atoi(optarg);
 			break;
 		case 'x':
-			configuration.con = atoi(optarg);
-			if (configuration.con < 0) {
-				configuration.con = 0;
+			conf.con = atoi(optarg);
+			if (conf.con < 0) {
+				conf.con = 0;
 			}
 			break;
 		case 'y':
-			configuration.noncon = atoi(optarg);
-			if (configuration.noncon < 0) {
-				configuration.noncon = 0;
+			conf.noncon = atoi(optarg);
+			if (conf.noncon < 0) {
+				conf.noncon = 0;
 			}
 			break;
 		case 'h':
@@ -646,11 +641,11 @@ main(int argc, char **argv)
 			return 0;
 		default:
 			/* encoded flag to avoid collision with ascii letters */
-			configuration.flags |= (option ^ KEY);
+			conf.flags |= (option ^ KEY);
 		}
 	}
 
-	if (init_evsets(&configuration)) {
+	if (init_evsets()) {
 		printf("[-] Initializing evsets library failed.\n");
 		return 1;
 	}
