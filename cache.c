@@ -1,7 +1,41 @@
 #include "cache.h"
-#include "micro.h"
 #include "hist_utils.h"
 #include "public_structs.h"
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include "cache.h"
+
+#define LINE_BITS 6
+#define PAGE_BITS 12
+#define LINE_SIZE (1 << LINE_BITS)
+#define PAGE_SIZE2 (1 << PAGE_BITS)
+
+typedef unsigned long long int ul;
+
+inline void
+flush(void *p)
+{
+	__asm__ volatile("clflush 0(%0)" : : "c"(p) : "rax");
+}
+
+inline uint64_t
+rdtscfence()
+{
+	uint64_t a, d;
+	__asm__ volatile("lfence");
+	__asm__ volatile("rdtsc" : "=a"(a), "=d"(d) : :);
+	__asm__ volatile("lfence");
+	return ((d << 32) | a);
+}
+
+inline void
+maccess(void *p)
+{
+	__asm__ volatile("movq (%0), %%rax\n" : : "c"(p) : "rax");
+}
 
 inline void
 traverse_list_simple(cache_block_t *set)
