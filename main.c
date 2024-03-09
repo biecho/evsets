@@ -31,7 +31,6 @@ struct config conf = {
 	.con = 0,
 	.noncon = 0,
 	.buffer_size = 3072,
-	.flags = 0,
 	.traverse = &traverse_list_simple,
 };
 
@@ -116,7 +115,7 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 	mycont:
 		printf("\tbacktracking step\n");
 
-	} while (l > 0 && repeat++ < MAX_REPS_BACK && (conf.flags & FLAG_BACKTRACKING));
+	} while (l > 0 && repeat++ < MAX_REPS_BACK);
 
 	// recover discarded elements
 	for (i = 0; i < h * 2; i++) {
@@ -282,9 +281,7 @@ main(int argc, char **argv)
 {
 	int option = 0, option_index = 0;
 
-	static struct option long_options[] = { 
-						{ "backtracking", no_argument, 0, FLAG_BACKTRACKING ^ KEY },
-						{ "buffer-size", no_argument, 0, 'b' },
+	static struct option long_options[] = { { "buffer-size", no_argument, 0, 'b' },
 						{ "threshold", no_argument, 0, 't' },
 						{ "ratio", no_argument, 0, 'q' },
 						{ "cache-size", no_argument, 0, 'c' },
@@ -360,8 +357,7 @@ main(int argc, char **argv)
 			usage(argv[0]);
 			return 0;
 		default:
-			/* encoded flag to avoid collision with ascii letters */
-			conf.flags |= (option ^ KEY);
+			break;
 		}
 	}
 
