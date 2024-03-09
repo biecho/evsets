@@ -36,14 +36,7 @@ struct config conf = {
 };
 
 #define MAX_REPS_BACK 100
-
 #define MAX_REPS 50
-
-static cache_block_t **evsets = NULL;
-static int num_evsets = 0;
-static int colors = 0;
-static ul pool_sz = 0;
-static ul sz = 0;
 
 int
 gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
@@ -91,7 +84,7 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 			do {
 				list_from_chunks(ptr, chunks, ichunks[n], conf.cache_way + 1);
 				n = n + 1;
-				ret = tests_avg(*ptr, victim, conf.rounds, conf.threshold, conf.traverse);
+				ret = tests_avg(*ptr, victim, conf.rounds, conf.threshold);
 			} while (!ret && (n < conf.cache_way + 1));
 
 			// If find smaller eviction set remove chunk
@@ -140,7 +133,7 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 	free(back);
 
 	int ret = 0;
-	ret = tests_avg(*ptr, victim, conf.rounds, conf.threshold, conf.traverse);
+	ret = tests_avg(*ptr, victim, conf.rounds, conf.threshold);
 	if (ret) {
 		if (len > conf.cache_way) {
 			return 1;
@@ -152,8 +145,12 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 	return 0;
 }
 
+static cache_block_t **evsets = NULL;
+static int num_evsets = 0;
+static int colors = 0;
+
 int
-find_evsets(char *probe, char *pool, char* victim)
+find_evsets(char *probe, char *pool, unsigned long pool_sz, char* victim)
 {
 	cache_block_t *ptr = NULL;
 	cache_block_t *can = NULL;
@@ -186,11 +183,11 @@ pick:
 	// Conflict set incompatible with ANY case (don't needed)
 	if ((conf.flags & FLAG_CONFLICTSET) && (conf.algorithm != ALGORITHM_LINEAR)) {
 		pick_n_random_from_list(ptr, conf.stride, pool_sz, conf.offset, conf.buffer_size);
-		generate_conflict_set(&ptr, &can, conf.rounds, conf.threshold, conf.traverse);
+		generate_conflict_set(&ptr, &can, conf.rounds, conf.threshold);
 		printf("[+] Compute conflict set: %d\n", list_length(can));
 		victim = (char *)ptr;
 		ptr = can; // new conflict set
-		while (victim && !tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse)) {
+		while (victim && !tests_avg(ptr, victim, conf.rounds, conf.threshold)) {
 			victim = (char *)(((cache_block_t *)victim)->next);
 		}
 		can = NULL;
@@ -213,7 +210,7 @@ pick:
 		}
 	}
 
-	ret = tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse);
+	ret = tests_avg(ptr, victim, conf.rounds, conf.threshold);
 
 	if ((victim || conf.algorithm == ALGORITHM_LINEAR) && ret) {
 		printf("[+] Initial candidate set evicted victim\n");
@@ -300,8 +297,7 @@ pick:
 			int count = 0, t = 0;
 			while (ptr) {
 				e = list_pop(&ptr);
-				t = tests_avg(evsets[id], (char *)e, conf.rounds, conf.threshold,
-					      conf.traverse);
+				t = tests_avg(evsets[id], (char *)e, conf.rounds, conf.threshold);
 				if (t) {
 					// create list of congruents
 					e->set = id;
@@ -351,13 +347,11 @@ pick:
 
 				// New victim is not evicted by previous eviction sets
 				for (ret = 0, s = 0; s < id && !ret; s++) {
-					ret = tests_avg(evsets[s], victim, conf.rounds, conf.threshold,
-							conf.traverse);
+					ret = tests_avg(evsets[s], victim, conf.rounds, conf.threshold);
 				}
 				if (!ret) {
 					// Rest of initial eviction set can evict victim
-					ret2 = tests_avg(ptr, victim, conf.rounds, conf.threshold,
-							 conf.traverse);
+					ret2 = tests_avg(ptr, victim, conf.rounds, conf.threshold);
 				}
 			} while ((list_length(ptr) > conf.cache_way) && !ret2 &&
 				 (((conf.flags & FLAG_CONFLICTSET) && victim) ||
@@ -523,8 +517,8 @@ main(int argc, char **argv)
 		}
 	}
 
-	sz = conf.buffer_size * conf.stride;
-	pool_sz = 128 << 20; // 128MB
+	unsigned long long sz = conf.buffer_size * conf.stride;
+	unsigned long long pool_sz = 128 << 20; // 128MB
 	printf("[+] Total buffer size required: %llu bytes\n", sz);
 	printf("[+] Memory pool size allocated: %llu bytes (128MB)\n", pool_sz);
 
@@ -564,7 +558,7 @@ main(int argc, char **argv)
 	printf("[+] Eviction sets allocated for %d colors\n", colors);
 
 	char *victim = &probe[conf.offset << 6];
-	if (find_evsets(probe, pool, victim)) {
+	if (find_evsets(probe, pool, pool_sz, victim)) {
 		printf("[-] Could not find all desired eviction sets.\n");
 	}
 

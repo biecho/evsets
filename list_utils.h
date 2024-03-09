@@ -22,7 +22,6 @@ void print_list(cache_block_t *ptr);
 void initialize_list(cache_block_t *ptr, ul sz, ul offset);
 void pick_n_random_from_list(cache_block_t *src, ul stride, ul sz, ul offset, ul n);
 void rearrange_list(cache_block_t **ptr, ul stride, ul sz, ul offset);
-void generate_conflict_set(cache_block_t **ptr, cache_block_t **out, int rep, int threshold,
-			   void (*traverse)(cache_block_t *));
+void generate_conflict_set(cache_block_t **ptr, cache_block_t **out, int rep, int threshold);
 
 #endif /* list_utils_H */

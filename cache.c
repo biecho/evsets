@@ -12,56 +12,33 @@ traverse_list_simple(cache_block_t *ptr)
 	}
 }
 
-inline void
-traverse_list_time(cache_block_t *ptr, void (*trav)(cache_block_t *))
-{
-	size_t time;
-	trav(ptr);
-	while (ptr) {
-		//		time = rdtsc();
-		time = rdtscfence();
-		maccess(ptr);
-		ptr->delta += rdtscfence() - time;
-		//		ptr->delta += rdtscp() - time;
-		ptr = ptr->next;
-	}
-}
-
 int
-test_set(cache_block_t *ptr, char *victim, void (*trav)(cache_block_t *))
+test_set(cache_block_t *ptr, char *victim)
 {
 	maccess(victim);
 	maccess(victim);
 	maccess(victim);
 	maccess(victim);
 
-	trav(ptr);
+	traverse_list_simple(ptr);
 
 	maccess(victim + 222); // page walk
 
 	size_t delta, time;
-#ifndef THREAD_COUNTER
-	//	time = rdtsc();
 	time = rdtscfence();
 	maccess(victim);
-	//	delta = rdtscp() - time;
 	delta = rdtscfence() - time;
-#else
-	time = clock_thread();
-	maccess(victim);
-	delta = clock_thread() - time;
-#endif
 	return delta;
 }
 
 int
-tests_avg(cache_block_t *ptr, char *victim, int rep, int threshold, void (*trav)(cache_block_t *))
+tests_avg(cache_block_t *ptr, char *victim, int rep, int threshold)
 {
 	int i = 0, ret = 0, delta = 0;
 	cache_block_t *vic = (cache_block_t *)victim;
 	vic->delta = 0;
 	for (i = 0; i < rep; i++) {
-		delta = test_set(ptr, victim, trav);
+		delta = test_set(ptr, victim);
 		if (delta < 800)
 			vic->delta += delta;
 	}
