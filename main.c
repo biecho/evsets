@@ -28,8 +28,6 @@ struct config conf = {
 	.algorithm = ALGORITHM_GROUP,
 	.strategy = 2,
 	.offset = 0,
-	.con = 0,
-	.noncon = 0,
 	.buffer_size = 3072,
 	.traverse = &traverse_list_simple,
 };

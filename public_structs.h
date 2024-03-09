@@ -28,7 +28,6 @@ struct config {
 	int algorithm;
 	int strategy;
 	int offset;
-	int con, noncon; // only for debug
 	void (*traverse)(cache_block_t *);
 };
 
