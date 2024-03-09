@@ -94,16 +94,14 @@ calibrate(char *victim, struct config *conf)
 
 	ret = hist_min(flushed, hsz);
 
-	if (conf->flags & FLAG_VERBOSE) {
-		printf("\tflushed: min %d, mode %d, avg %f, max %d, std %.02f, q %d (%.02f)\n",
-		       hist_min(flushed, hsz), hist_mode(flushed, hsz), hist_avg(flushed, hsz),
-		       hist_max(flushed, hsz), hist_std(flushed, hsz, hist_avg(flushed, hsz)),
-		       hist_q(flushed, hsz, ret), (double)hist_q(flushed, hsz, ret) / conf->cal_rounds);
-		printf("\tunflushed: min %d, mode %d, avg %f, max %d, std %.02f, q %d (%.02f)\n",
-		       hist_min(unflushed, hsz), hist_mode(unflushed, hsz), hist_avg(unflushed, hsz),
-		       hist_max(unflushed, hsz), hist_std(unflushed, hsz, hist_avg(unflushed, hsz)),
-		       hist_q(unflushed, hsz, ret), (double)hist_q(unflushed, hsz, ret) / conf->cal_rounds);
-	}
+	printf("\tflushed: min %d, mode %d, avg %f, max %d, std %.02f, q %d (%.02f)\n",
+	       hist_min(flushed, hsz), hist_mode(flushed, hsz), hist_avg(flushed, hsz),
+	       hist_max(flushed, hsz), hist_std(flushed, hsz, hist_avg(flushed, hsz)),
+	       hist_q(flushed, hsz, ret), (double)hist_q(flushed, hsz, ret) / conf->cal_rounds);
+	printf("\tunflushed: min %d, mode %d, avg %f, max %d, std %.02f, q %d (%.02f)\n",
+	       hist_min(unflushed, hsz), hist_mode(unflushed, hsz), hist_avg(unflushed, hsz),
+	       hist_max(unflushed, hsz), hist_std(unflushed, hsz, hist_avg(unflushed, hsz)),
+	       hist_q(unflushed, hsz, ret), (double)hist_q(unflushed, hsz, ret) / conf->cal_rounds);
 
 	free(unflushed);
 	free(flushed);

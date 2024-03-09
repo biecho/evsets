@@ -93,10 +93,7 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 				cans += list_length(back[l]); // add length of removed chunk
 				len = list_length(*ptr);
 
-				if (conf.flags & FLAG_VERBOSE) {
-					printf("\tlvl=%d: eset=%d, removed=%d (%d)\n", l, len, cans,
-					       len + cans);
-				}
+				printf("\tlvl=%d: eset=%d, removed=%d (%d)\n", l, len, cans, len + cans);
 
 				l = l + 1; // go to next lvl
 			}
@@ -117,9 +114,7 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 
 		break;
 	mycont:
-		if (conf.flags & FLAG_VERBOSE) {
-			printf("\tbacktracking step\n");
-		}
+		printf("\tbacktracking step\n");
 
 	} while (l > 0 && repeat++ < MAX_REPS_BACK && (conf.flags & FLAG_BACKTRACKING));
 
@@ -241,10 +236,8 @@ pick:
 		// Remove rest of congruent elements
 		list_set_id(evsets[id], id);
 		set = can;
-		if (!(conf.flags & FLAG_FINDALLCOLORS)) {
-			printf("You do not want to find all, right? ----------------------\n");
-			break;
-		}
+		printf("You do not want to find all, right? ----------------------\n");
+		break;
 	} while (rep < MAX_REPS);
 
 	return ret;
@@ -283,21 +276,15 @@ usage(char *name)
 
 #define KEY 0xd34dc0d3
 
+// ./evsets -b 3072 -c 12 -n 16 -o 4096 -a g -e 2 -C 0 --verbose --retry --backtracking --verify
 int
 main(int argc, char **argv)
 {
 	int option = 0, option_index = 0;
 
-	static struct option long_options[] = { 
-						{ "retry", no_argument, 0, FLAG_RETRY ^ KEY },
+	static struct option long_options[] = { { "retry", no_argument, 0, FLAG_RETRY ^ KEY },
 						{ "backtracking", no_argument, 0, FLAG_BACKTRACKING ^ KEY },
-						{ "verbose", no_argument, 0, FLAG_VERBOSE ^ KEY },
 						{ "verify", no_argument, 0, FLAG_VERIFY ^ KEY },
-						{ "debug", no_argument, 0, FLAG_DEBUG ^ KEY },
-						{ "findallcolors", no_argument, 0, FLAG_FINDALLCOLORS ^ KEY },
-						{ "findallcongruent", no_argument, 0,
-						  FLAG_FINDALLCONGRUENT ^ KEY },
-						{ "conflictset", no_argument, 0, FLAG_CONFLICTSET ^ KEY },
 						{ "buffer-size", no_argument, 0, 'b' },
 						{ "threshold", no_argument, 0, 't' },
 						{ "ratio", no_argument, 0, 'q' },
