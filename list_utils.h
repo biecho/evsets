@@ -25,4 +25,3 @@ void rearrange_list(Elem **ptr, ul stride, ul sz, ul offset);
 void generate_conflict_set(Elem **ptr, Elem **out);
 
 #endif /* list_utils_H */
-

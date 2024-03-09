@@ -3,8 +3,7 @@
 
 #include <stdlib.h>
 
-struct histogram
-{
+struct histogram {
 	int val;
 	int count;
 };

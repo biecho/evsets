@@ -24,3 +24,6 @@ counter: all
 
 clean:
 	rm -f *.o libevsets.so evsets
+
+format:
+	find . -iname '*.h' -o -iname '*.c' | xargs clang-format -i
