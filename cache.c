@@ -74,17 +74,9 @@ calibrate(char *victim, struct config *conf)
 
 		maccess(victim + 222); // page walk
 
-#ifndef THREAD_COUNTER
-		//		time = rdtsc();
 		time = rdtscfence();
 		maccess(victim);
-		//		delta = rdtscp() - time;
 		delta = rdtscfence() - time;
-#else
-		time = clock_thread();
-		maccess(victim);
-		delta = clock_thread() - time;
-#endif
 		hist_add(unflushed, hsz, delta);
 	}
 	t_unflushed = hist_avg(unflushed, hsz);
@@ -93,17 +85,9 @@ calibrate(char *victim, struct config *conf)
 		maccess(victim); // page walk
 		flush(victim);
 
-#ifndef THREAD_COUNTER
-		//		time = rdtsc();
 		time = rdtscfence();
 		maccess(victim);
-		//		delta = rdtscp() - time;
 		delta = rdtscfence() - time;
-#else
-		time = clock_thread();
-		maccess(victim);
-		delta = clock_thread() - time;
-#endif
 		hist_add(flushed, hsz, delta);
 	}
 	t_flushed = hist_avg(flushed, hsz);
