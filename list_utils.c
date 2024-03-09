@@ -253,10 +253,10 @@ print_list(cache_block_t *ptr)
 }
 
 void
-initialize_list(cache_block_t *src, ul sz, ul offset)
+initialize_list(cache_block_t *src, ul sz)
 {
 	unsigned int j = 0;
-	for (j = 0; j < (sz / sizeof(cache_block_t)) - offset; j++) {
+	for (j = 0; j < (sz / sizeof(cache_block_t)); j++) {
 		src[j].set = -2;
 		src[j].delta = 0;
 		src[j].prev = NULL;

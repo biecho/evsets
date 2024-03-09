@@ -19,7 +19,7 @@ void list_set_id(cache_block_t *ptr, int id);
 void print_list(cache_block_t *ptr);
 
 //void initialize_random_list(cache_block_t *ptr, ul offset, ul sz, cache_block_t *base);
-void initialize_list(cache_block_t *ptr, ul sz, ul offset);
+void initialize_list(cache_block_t *ptr, ul sz);
 void pick_n_random_from_list(cache_block_t *src, ul stride, ul sz, ul offset, ul n);
 void rearrange_list(cache_block_t **ptr, ul stride, ul sz, ul offset);
 void generate_conflict_set(cache_block_t **ptr, cache_block_t **out, int rep, int threshold);
