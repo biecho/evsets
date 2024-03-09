@@ -242,9 +242,6 @@ main()
 		.initial_set_size = 4096,
 	};
 
-	unsigned long long sz = conf.initial_set_size * conf.stride;
-	unsigned long long pool_sz = 128 << 20; // 128MB
-
 	char *buffer = (char *)mmap(NULL, 1 << 30, PROT_READ | PROT_WRITE,
 				  MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
 	if (buffer == MAP_FAILED) {
@@ -252,6 +249,8 @@ main()
 		return 1;
 	}
 
+	// Consider the first 128MB as pool
+	unsigned long long pool_sz = 128 << 20;
     char* pool = &buffer[0];
     char* victim = &buffer[1 << 29];
 
@@ -260,9 +259,5 @@ main()
 	}
 
 	munmap(buffer, 1 << 30);
-
 	return 0;
-err:
-	munmap(buffer, 1 << 30);
-	return 1;
 }
