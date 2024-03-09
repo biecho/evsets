@@ -42,26 +42,8 @@ struct config conf = {
 static cache_block_t **evsets = NULL;
 static int num_evsets = 0;
 static int colors = 0;
-static char *probe = NULL;
-static char *pool = NULL;
 static ul pool_sz = 0;
 static ul sz = 0;
-
-int
-get_num_evsets()
-{
-	return num_evsets;
-}
-
-cache_block_t *
-get_evset(int id)
-{
-	if (id >= num_evsets) {
-		return NULL;
-	}
-
-	return evsets[id];
-}
 
 int
 gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
@@ -171,13 +153,11 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 }
 
 int
-find_evsets()
+find_evsets(char *probe, char *pool, char* victim)
 {
-	char *victim = NULL;
 	cache_block_t *ptr = NULL;
 	cache_block_t *can = NULL;
 
-	victim = &probe[conf.offset << 6];
 	*victim = 0; // touch line
 
 	int seed = time(NULL);
@@ -553,9 +533,9 @@ main(int argc, char **argv)
 		return 1;
 	}
 
-	pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,
+	char *pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,
 			    0, 0);
-	probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,
+	char *probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,
 			     0, 0);
 
 	if (pool == MAP_FAILED || probe == MAP_FAILED) {
@@ -583,7 +563,8 @@ main(int argc, char **argv)
 	}
 	printf("[+] Eviction sets allocated for %d colors\n", colors);
 
-	if (find_evsets()) {
+	char *victim = &probe[conf.offset << 6];
+	if (find_evsets(probe, pool, victim)) {
 		printf("[-] Could not find all desired eviction sets.\n");
 	}
 
