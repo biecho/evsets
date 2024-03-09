@@ -44,7 +44,9 @@ main()
     char* pool = &buffer[0];
     char* victim = &buffer[1 << 29];
 
-	if (find_evsets(pool, pool_sz, victim, conf)) {
+	eviction_set_t eviction_set;
+
+	if (find_eviction_set(pool, pool_sz, victim, conf, &eviction_set)) {
 		printf("[-] Could not find all desired eviction sets.\n");
 	}
 

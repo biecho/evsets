@@ -135,8 +135,7 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim, int cache_wa
 	return 0;
 }
 
-int
-find_evsets(char *pool, unsigned long pool_sz, char *victim, struct eviction_config_t conf)
+int find_eviction_set(char *pool, unsigned long pool_sz, char *victim, struct eviction_config_t conf, eviction_set_t* eviction_set)
 {
 	cache_block_t *set = NULL;
 	cache_block_t *can = NULL;
