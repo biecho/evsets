@@ -25,8 +25,6 @@ struct config conf = {
 	.cache_size = 12 << 20,
 	.cache_way = 12,
 	.cache_slices = 6,
-	.strategy = 2,
-	.offset = 0,
 	.buffer_size = 3072,
 };
 
@@ -245,8 +243,6 @@ main()
 	conf.cache_size = 12 << 20;
 	conf.cache_way = 16;
 	conf.stride = 4096;
-	conf.strategy = 2;
-	conf.offset = 0;
 	conf.cache_slices = 6;
 
 	unsigned long long sz = conf.buffer_size * conf.stride;
@@ -271,7 +267,7 @@ main()
 
 	printf("[+] Memory allocated successfully: Pool at %p, Probe at %p\n", (void *)pool, (void *)probe);
 	printf("[+] %llu MB buffer allocated at %p (%llu blocks)\n", sz >> 20,
-	       (void *)&pool[conf.offset << 6], sz / sizeof(cache_block_t));
+	       (void *)&pool[0], sz / sizeof(cache_block_t));
 
 	if (conf.stride < 64 || conf.stride % 64 != 0) {
 		printf("[!] Error: Invalid stride %d. Stride must be a multiple of 64 and >= 64.\n",
@@ -289,7 +285,7 @@ main()
 	}
 	printf("[+] Eviction sets allocated for %d colors\n", colors);
 
-	char *victim = &probe[conf.offset << 6];
+	char *victim = &probe[0];
 	int seed = time(NULL);
 	srand(seed);
 

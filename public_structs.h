@@ -1,8 +1,6 @@
 #ifndef public_structs_H
 #define public_structs_H
 
-#define STRATEGY_SIMPLE 2
-
 typedef struct cache_block_t {
 	struct cache_block_t *next;
 	struct cache_block_t *prev;
@@ -19,8 +17,6 @@ struct config {
 	int cache_way;
 	int cache_slices;
 	int threshold;
-	int strategy;
-	int offset;
 };
 
 #endif /* public_structs_H */
