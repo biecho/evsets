@@ -232,16 +232,9 @@ pick:
 				list_concat(&set, can);
 				can = NULL;
 				rep++;
-				if (!(conf.flags & FLAG_CONFLICTSET) && !(conf.flags & FLAG_FINDALLCOLORS)) {
-					// select a new initial set
-					printf("[!] Error: repeat, pick a new set\n");
-					goto pick;
-				} else {
-					// reshuffle list or change victim?
-					printf("[!] Error: try new victim\n");
-					break;
-					// continue;
-				}
+				// select a new initial set
+				printf("[!] Error: repeat, pick a new set\n");
+				goto pick;
 			} else {
 				printf("[!] Error: exceeded max repetitions\n");
 			}
@@ -259,7 +252,7 @@ pick:
 			printf("You do not want to find all, right? ----------------------\n");
 			break;
 		}
-	} while (((conf.flags & FLAG_RETRY) && rep < MAX_REPS));
+	} while (rep < MAX_REPS);
 
 	return ret;
 }
