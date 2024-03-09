@@ -89,10 +89,10 @@ init_evsets(struct config *conf_ptr)
 	}
 
 	printf("[*] HugePages used if available\n");
-	pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE,
-				MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
-	probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE,
-					MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
+	pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,
+			    0, 0);
+	probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,
+			     0, 0);
 
 	if (pool == MAP_FAILED || probe == MAP_FAILED) {
 		printf("[!] Error: Memory allocation failed\n");
@@ -214,13 +214,7 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 			do {
 				list_from_chunks(ptr, chunks, ichunks[n], conf.cache_way + 1);
 				n = n + 1;
-				if (conf.ratio > 0.0) {
-					ret = tests(*ptr, victim, conf.rounds, conf.threshold, conf.ratio,
-						    conf.traverse);
-				} else {
-					ret = tests_avg(*ptr, victim, conf.rounds, conf.threshold,
-							conf.traverse);
-				}
+				ret = tests_avg(*ptr, victim, conf.rounds, conf.threshold, conf.traverse);
 			} while (!ret && (n < conf.cache_way + 1));
 
 			// If find smaller eviction set remove chunk
@@ -269,11 +263,7 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 	free(back);
 
 	int ret = 0;
-	if (conf.ratio > 0.0) {
-		ret = tests(*ptr, victim, conf.rounds, conf.threshold, conf.ratio, conf.traverse);
-	} else {
-		ret = tests_avg(*ptr, victim, conf.rounds, conf.threshold, conf.traverse);
-	}
+	ret = tests_avg(*ptr, victim, conf.rounds, conf.threshold, conf.traverse);
 	if (ret) {
 		if (len > conf.cache_way) {
 			return 1;
@@ -356,11 +346,7 @@ pick:
 	if (conf.algorithm == ALGORITHM_LINEAR) {
 		ret = test_and_time(ptr, conf.rounds, conf.threshold, conf.cache_way, conf.traverse);
 	} else if (victim) {
-		if (conf.ratio > 0.0) {
-			ret = tests(ptr, victim, conf.rounds, conf.threshold, conf.ratio, conf.traverse);
-		} else {
 			ret = tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse);
-		}
 	}
 	if ((victim || conf.algorithm == ALGORITHM_LINEAR) && ret) {
 		printf("[+] Initial candidate set evicted victim\n");
@@ -457,13 +443,8 @@ pick:
 			int count = 0, t = 0;
 			while (ptr) {
 				e = list_pop(&ptr);
-				if (conf.ratio > 0.0) {
-					t = tests(evsets[id], (char *)e, conf.rounds, conf.threshold,
-						  conf.ratio, conf.traverse);
-				} else {
-					t = tests_avg(evsets[id], (char *)e, conf.rounds, conf.threshold,
-						      conf.traverse);
-				}
+				t = tests_avg(evsets[id], (char *)e, conf.rounds, conf.threshold,
+							conf.traverse);
 				if (t) {
 					// create list of congruents
 					e->set = id;

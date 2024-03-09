@@ -343,12 +343,7 @@ generate_conflict_set(cache_block_t **ptr, cache_block_t **out)
 	while (*ptr) // or while size |out| == limit
 	{
 		candidate = list_pop(ptr);
-		if (conf.ratio > 0.0) {
-			ret = tests(*out, (char *)candidate, conf.rounds, conf.threshold, conf.ratio,
-				    conf.traverse);
-		} else {
-			ret = tests_avg(*out, (char *)candidate, conf.rounds, conf.threshold, conf.traverse);
-		}
+		ret = tests_avg(*out, (char *)candidate, conf.rounds, conf.threshold, conf.traverse);
 		if (!ret) {
 			// no conflict, add element
 			list_push(out, candidate);
