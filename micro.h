@@ -14,12 +14,14 @@
 
 typedef unsigned long long int ul;
 
-inline void flush(void *p)
+inline void
+flush(void *p)
 {
 	__asm__ volatile("clflush 0(%0)" : : "c"(p) : "rax");
 }
 
-inline uint64_t rdtsc()
+inline uint64_t
+rdtsc()
 {
 	unsigned a, d;
 	__asm__ volatile("cpuid\n"
@@ -30,7 +32,8 @@ inline uint64_t rdtsc()
 	return ((uint64_t)a << 32) | d;
 }
 
-inline uint64_t rdtscp()
+inline uint64_t
+rdtscp()
 {
 	unsigned a, d;
 	__asm__ volatile("rdtscp\n"
@@ -41,7 +44,8 @@ inline uint64_t rdtscp()
 	return ((uint64_t)a << 32) | d;
 }
 
-inline uint64_t rdtscfence()
+inline uint64_t
+rdtscfence()
 {
 	uint64_t a, d;
 	__asm__ volatile("lfence");
@@ -50,7 +54,8 @@ inline uint64_t rdtscfence()
 	return ((d << 32) | a);
 }
 
-inline void maccess(void *p)
+inline void
+maccess(void *p)
 {
 	__asm__ volatile("movq (%0), %%rax\n" : : "c"(p) : "rax");
 }

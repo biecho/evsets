@@ -9,7 +9,8 @@
 #endif
 
 #ifdef THREAD_COUNTER
-void *counter_thread()
+void *
+counter_thread()
 {
 	while (1) {
 		__asm__ volatile("mfence");
@@ -19,7 +20,8 @@ void *counter_thread()
 	pthread_exit(NULL);
 }
 
-static inline uint64_t clock_thread()
+static inline uint64_t
+clock_thread()
 {
 	uint64_t ret;
 	__asm__ volatile("mfence");
@@ -28,7 +30,8 @@ static inline uint64_t clock_thread()
 	return ret;
 }
 
-int create_counter()
+int
+create_counter()
 {
 	if (pthread_create(&thread, NULL, counter_thread, &params)) {
 		printf("[!] Error: thread counter\n");
@@ -37,13 +40,15 @@ int create_counter()
 	return 0;
 }
 
-void destroy_counter()
+void
+destroy_counter()
 {
 	pthread_kill(thread, 0);
 }
 #endif
 
-inline void traverse_list_skylake(Elem *ptr)
+inline void
+traverse_list_skylake(Elem *ptr)
 {
 	while (ptr && ptr->next && ptr->next->next) {
 		maccess(ptr);
@@ -56,7 +61,8 @@ inline void traverse_list_skylake(Elem *ptr)
 	}
 }
 
-inline void traverse_list_asm_skylake(Elem *ptr)
+inline void
+traverse_list_asm_skylake(Elem *ptr)
 {
 	__asm__ volatile("test %%rcx, %%rcx;"
 			 "jz out;"
@@ -79,7 +85,8 @@ inline void traverse_list_asm_skylake(Elem *ptr)
 			 : "cc", "memory");
 }
 
-inline void traverse_list_asm_haswell(Elem *ptr)
+inline void
+traverse_list_asm_haswell(Elem *ptr)
 {
 	__asm__ volatile("test %%rcx, %%rcx;"
 			 "jz out2;"
@@ -98,7 +105,8 @@ inline void traverse_list_asm_haswell(Elem *ptr)
 			 : "cc", "memory");
 }
 
-inline void traverse_list_asm_simple(Elem *ptr)
+inline void
+traverse_list_asm_simple(Elem *ptr)
 {
 	__asm__ volatile("loop3:"
 			 "test %%rcx, %%rcx;"
@@ -111,7 +119,8 @@ inline void traverse_list_asm_simple(Elem *ptr)
 			 : "cc", "memory");
 }
 
-inline void traverse_list_haswell(Elem *ptr)
+inline void
+traverse_list_haswell(Elem *ptr)
 {
 	while (ptr && ptr->next) {
 		maccess(ptr);
@@ -122,7 +131,8 @@ inline void traverse_list_haswell(Elem *ptr)
 	}
 }
 
-inline void traverse_list_simple(Elem *ptr)
+inline void
+traverse_list_simple(Elem *ptr)
 {
 	while (ptr) {
 		maccess(ptr);
@@ -130,7 +140,8 @@ inline void traverse_list_simple(Elem *ptr)
 	}
 }
 
-inline void traverse_list_rrip(Elem *ptr)
+inline void
+traverse_list_rrip(Elem *ptr)
 {
 	Elem *p, *s = ptr;
 	while (ptr) {
@@ -150,7 +161,8 @@ inline void traverse_list_rrip(Elem *ptr)
 	maccess(p);
 }
 
-inline void traverse_list_to_n(Elem *ptr, int n)
+inline void
+traverse_list_to_n(Elem *ptr, int n)
 {
 	while (ptr && n-- > 0) {
 		maccess(ptr);
@@ -158,7 +170,8 @@ inline void traverse_list_to_n(Elem *ptr, int n)
 	}
 }
 
-inline void traverse_list_time(Elem *ptr, void (*trav)(Elem *))
+inline void
+traverse_list_time(Elem *ptr, void (*trav)(Elem *))
 {
 	size_t time;
 	trav(ptr);
@@ -172,7 +185,8 @@ inline void traverse_list_time(Elem *ptr, void (*trav)(Elem *))
 	}
 }
 
-int test_set(Elem *ptr, char *victim, void (*trav)(Elem *))
+int
+test_set(Elem *ptr, char *victim, void (*trav)(Elem *))
 {
 	maccess(victim);
 	maccess(victim);
@@ -198,7 +212,8 @@ int test_set(Elem *ptr, char *victim, void (*trav)(Elem *))
 	return delta;
 }
 
-int test_and_time(Elem *ptr, int rep, int threshold, int ways, void (*trav)(Elem *))
+int
+test_and_time(Elem *ptr, int rep, int threshold, int ways, void (*trav)(Elem *))
 {
 	int i = 0, count = 0;
 	Elem *tmp = ptr;
@@ -220,7 +235,8 @@ int test_and_time(Elem *ptr, int rep, int threshold, int ways, void (*trav)(Elem
 	return count > ways;
 }
 
-int tests_avg(Elem *ptr, char *victim, int rep, int threshold, void (*trav)(Elem *))
+int
+tests_avg(Elem *ptr, char *victim, int rep, int threshold, void (*trav)(Elem *))
 {
 	int i = 0, ret = 0, delta = 0;
 	Elem *vic = (Elem *)victim;
@@ -234,7 +250,8 @@ int tests_avg(Elem *ptr, char *victim, int rep, int threshold, void (*trav)(Elem
 	return ret > threshold;
 }
 
-int tests(Elem *ptr, char *victim, int rep, int threshold, float ratio, void (*trav)(Elem *))
+int
+tests(Elem *ptr, char *victim, int rep, int threshold, float ratio, void (*trav)(Elem *))
 {
 	int i = 0, ret = 0, delta, hsz = rep * 100;
 	struct histogram *hist;
@@ -250,7 +267,8 @@ int tests(Elem *ptr, char *victim, int rep, int threshold, float ratio, void (*t
 	return ret > (int)(rep * ratio);
 }
 
-int calibrate(char *victim, struct config *conf)
+int
+calibrate(char *victim, struct config *conf)
 {
 	size_t delta, time, t_flushed, t_unflushed;
 	struct histogram *flushed, *unflushed;

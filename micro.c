@@ -4,7 +4,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-ul vtop(ul vaddr)
+ul
+vtop(ul vaddr)
 {
 	int fd = open("/proc/self/pagemap", O_RDONLY);
 	if (fd < 0) {
@@ -21,7 +22,8 @@ ul vtop(ul vaddr)
 	return (paddr << PAGE_BITS) | (vaddr & (PAGE_SIZE2 - 1));
 }
 
-unsigned int count_bits(ul n)
+unsigned int
+count_bits(ul n)
 {
 	unsigned int count = 0;
 	while (n) {
@@ -31,7 +33,8 @@ unsigned int count_bits(ul n)
 	return count;
 }
 
-unsigned int nbits(ul n)
+unsigned int
+nbits(ul n)
 {
 	unsigned int ret = 0;
 	n = n >> 1;
@@ -42,7 +45,8 @@ unsigned int nbits(ul n)
 	return ret;
 }
 
-ul ptos(ul paddr, ul slices)
+ul
+ptos(ul paddr, ul slices)
 {
 	unsigned long long ret = 0;
 	unsigned long long mask[3] = { 0x1b5f575440ULL, 0x2eb5faa880ULL,
@@ -61,7 +65,8 @@ ul ptos(ul paddr, ul slices)
 	return ret;
 }
 
-void recheck(Elem *ptr, char *victim, bool err, struct config *conf)
+void
+recheck(Elem *ptr, char *victim, bool err, struct config *conf)
 {
 	unsigned int cache_sets = conf->cache_size / LINE_SIZE / conf->cache_way / conf->cache_slices;
 	ul vpaddr = 0, paddr = 0, vcacheset = 0, cacheset = 0, vslice = 0, slice = 0;
@@ -119,7 +124,8 @@ void recheck(Elem *ptr, char *victim, bool err, struct config *conf)
 	}
 }
 
-int filter(Elem **ptr, char *victim, int n, int m, struct config *conf)
+int
+filter(Elem **ptr, char *victim, int n, int m, struct config *conf)
 {
 	unsigned int cache_sets = conf->cache_size / LINE_SIZE / conf->cache_way / conf->cache_slices;
 	Elem *tmp = *ptr, *prev = NULL;

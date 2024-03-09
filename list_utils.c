@@ -4,7 +4,8 @@
 
 extern struct config conf;
 
-int list_length(Elem *ptr)
+int
+list_length(Elem *ptr)
 {
 	int l = 0;
 	while (ptr) {
@@ -15,7 +16,8 @@ int list_length(Elem *ptr)
 }
 
 /* add element to the head of the list */
-void list_push(Elem **ptr, Elem *e)
+void
+list_push(Elem **ptr, Elem *e)
 {
 	if (!e) {
 		return;
@@ -29,7 +31,8 @@ void list_push(Elem **ptr, Elem *e)
 }
 
 /* add element to the end of the list */
-void list_append(Elem **ptr, Elem *e)
+void
+list_append(Elem **ptr, Elem *e)
 {
 	Elem *tmp = *ptr;
 	if (!e) {
@@ -48,7 +51,8 @@ void list_append(Elem **ptr, Elem *e)
 }
 
 /* remove and return last element of list */
-Elem *list_shift(Elem **ptr)
+Elem *
+list_shift(Elem **ptr)
 {
 	Elem *tmp = (ptr) ? *ptr : NULL;
 	if (!tmp) {
@@ -68,7 +72,8 @@ Elem *list_shift(Elem **ptr)
 }
 
 /* remove and return first element of list */
-Elem *list_pop(Elem **ptr)
+Elem *
+list_pop(Elem **ptr)
 {
 	Elem *tmp = (ptr) ? *ptr : NULL;
 	if (!tmp) {
@@ -83,7 +88,8 @@ Elem *list_pop(Elem **ptr)
 	return tmp;
 }
 
-void list_split(Elem *ptr, Elem **chunks, int n)
+void
+list_split(Elem *ptr, Elem **chunks, int n)
 {
 	if (!ptr) {
 		return;
@@ -108,7 +114,8 @@ void list_split(Elem *ptr, Elem **chunks, int n)
 	}
 }
 
-Elem *list_get(Elem **ptr, size_t n)
+Elem *
+list_get(Elem **ptr, size_t n)
 {
 	Elem *tmp = *ptr;
 	size_t i = 0;
@@ -135,7 +142,8 @@ Elem *list_get(Elem **ptr, size_t n)
 	return tmp;
 }
 
-Elem *list_slice(Elem **ptr, size_t s, size_t e)
+Elem *
+list_slice(Elem **ptr, size_t s, size_t e)
 {
 	Elem *tmp = (ptr) ? *ptr : NULL, *ret = NULL;
 	size_t i = 0;
@@ -172,7 +180,8 @@ Elem *list_slice(Elem **ptr, size_t s, size_t e)
 }
 
 /* concat chunk of elements to the end of the list */
-void list_concat(Elem **ptr, Elem *chunk)
+void
+list_concat(Elem **ptr, Elem *chunk)
 {
 	Elem *tmp = (ptr) ? *ptr : NULL;
 	if (!tmp) {
@@ -188,7 +197,8 @@ void list_concat(Elem **ptr, Elem *chunk)
 	}
 }
 
-void list_from_chunks(Elem **ptr, Elem **chunks, int avoid, int len)
+void
+list_from_chunks(Elem **ptr, Elem **chunks, int avoid, int len)
 {
 	int next = (avoid + 1) % len;
 	if (!(*ptr) || !chunks || !chunks[next]) {
@@ -230,7 +240,8 @@ void list_from_chunks(Elem **ptr, Elem **chunks, int avoid, int len)
 	}
 }
 
-void print_list(Elem *ptr)
+void
+print_list(Elem *ptr)
 {
 	if (!ptr) {
 		printf("(empty)\n");
@@ -243,7 +254,8 @@ void print_list(Elem *ptr)
 	printf("\n");
 }
 
-void initialize_list(Elem *src, ul sz, ul offset)
+void
+initialize_list(Elem *src, ul sz, ul offset)
 {
 	unsigned int j = 0;
 	for (j = 0; j < (sz / sizeof(Elem)) - offset; j++) {
@@ -254,7 +266,8 @@ void initialize_list(Elem *src, ul sz, ul offset)
 	}
 }
 
-void pick_n_random_from_list(Elem *ptr, ul stride, ul sz, ul offset, ul n)
+void
+pick_n_random_from_list(Elem *ptr, ul stride, ul sz, ul offset, ul n)
 {
 	unsigned int count = 1, i = 0;
 	unsigned int len = ((sz - (offset * sizeof(Elem))) / stride);
@@ -284,7 +297,8 @@ void pick_n_random_from_list(Elem *ptr, ul stride, ul sz, ul offset, ul n)
 	e->next = NULL;
 }
 
-void rearrange_list(Elem **ptr, ul stride, ul sz, ul offset)
+void
+rearrange_list(Elem **ptr, ul stride, ul sz, ul offset)
 {
 	unsigned int len = (sz / sizeof(Elem)) - offset, i = 0;
 	Elem *p = *ptr;
@@ -312,7 +326,8 @@ void rearrange_list(Elem **ptr, ul stride, ul sz, ul offset)
 	}
 }
 
-void list_set_id(Elem *ptr, int id)
+void
+list_set_id(Elem *ptr, int id)
 {
 	while (ptr) {
 		ptr->set = id;
@@ -320,7 +335,8 @@ void list_set_id(Elem *ptr, int id)
 	}
 }
 
-void generate_conflict_set(Elem **ptr, Elem **out)
+void
+generate_conflict_set(Elem **ptr, Elem **out)
 {
 	Elem *candidate = NULL, *res = NULL;
 	int ret = 0;

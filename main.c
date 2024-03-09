@@ -35,7 +35,8 @@ struct config configuration = {
 	.flags = FLAG_CALIBRATE,
 };
 
-void usage(char *name)
+void
+usage(char *name)
 {
 	printf("[?] Usage: %s [flags] [params]\n\n"
 	       "\tFlags:\n"
@@ -68,7 +69,8 @@ void usage(char *name)
 
 #define KEY 0xd34dc0d3
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
 	int option = 0, option_index = 0;
 

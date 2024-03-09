@@ -9,7 +9,8 @@
 
 extern struct config conf;
 
-int naive_eviction(Elem **ptr, Elem **can, char *victim)
+int
+naive_eviction(Elem **ptr, Elem **can, char *victim)
 {
 	Elem *candidate = NULL;
 	int len = 0, cans = 0, i = 0, fail = 0, ret = 0, repeat = 0;
@@ -74,7 +75,8 @@ int naive_eviction(Elem **ptr, Elem **can, char *victim)
 	return 0;
 }
 
-int naive_eviction_optimistic(Elem **ptr, Elem **can, char *victim)
+int
+naive_eviction_optimistic(Elem **ptr, Elem **can, char *victim)
 {
 	Elem *candidate = NULL, *es = NULL;
 	int len = 0, cans = 0, elen = 0, i = 0, ret = 0;
@@ -134,7 +136,8 @@ int naive_eviction_optimistic(Elem **ptr, Elem **can, char *victim)
 	return !ret;
 }
 
-int gt_eviction(Elem **ptr, Elem **can, char *victim)
+int
+gt_eviction(Elem **ptr, Elem **can, char *victim)
 {
 	// Random chunk selection
 	Elem **chunks = (Elem **)calloc(conf.cache_way + 1, sizeof(Elem *));
@@ -249,7 +252,8 @@ int gt_eviction(Elem **ptr, Elem **can, char *victim)
 	return 0;
 }
 
-int gt_eviction_any(Elem **ptr, Elem **can)
+int
+gt_eviction_any(Elem **ptr, Elem **can)
 {
 	Elem **chunks = (Elem **)calloc(conf.cache_way + 2, sizeof(Elem *));
 	if (!chunks) {
@@ -350,7 +354,8 @@ int gt_eviction_any(Elem **ptr, Elem **can)
 	return 0;
 }
 
-int binary_eviction(Elem **ptr, Elem **can, char *victim)
+int
+binary_eviction(Elem **ptr, Elem **can, char *victim)
 {
 	// shameful inneficient implementation with lists...
 	// any good way to add backtracking?

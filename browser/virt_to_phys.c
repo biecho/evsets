@@ -16,7 +16,8 @@
 #define CACHE_SLICES (1 << SLICE_BITS)
 #define CACHE_SETS (1 << SET_BITS)
 
-unsigned long long vtop(unsigned pid, unsigned long long vaddr)
+unsigned long long
+vtop(unsigned pid, unsigned long long vaddr)
 {
 	char path[1024];
 	sprintf(path, "/proc/%u/pagemap", pid);
@@ -35,7 +36,8 @@ unsigned long long vtop(unsigned pid, unsigned long long vaddr)
 	return (paddr << PAGE_BITS) | (vaddr & (PAGE_SIZE2 - 1));
 }
 
-unsigned int count_bits(unsigned long long n)
+unsigned int
+count_bits(unsigned long long n)
 {
 	unsigned int count = 0;
 	while (n) {
@@ -45,7 +47,8 @@ unsigned int count_bits(unsigned long long n)
 	return count;
 }
 
-unsigned int nbits(unsigned long long n)
+unsigned int
+nbits(unsigned long long n)
 {
 	unsigned int ret = 0;
 	n = n >> 1;
@@ -56,7 +59,8 @@ unsigned int nbits(unsigned long long n)
 	return ret;
 }
 
-unsigned long long ptos(unsigned long long paddr, unsigned long long bits)
+unsigned long long
+ptos(unsigned long long paddr, unsigned long long bits)
 {
 	unsigned long long ret = 0;
 	unsigned long long mask[3] = { 0x1b5f575440ULL, 0x2eb5faa880ULL,
@@ -74,7 +78,8 @@ unsigned long long ptos(unsigned long long paddr, unsigned long long bits)
 	return ret;
 }
 
-void check(unsigned int pid, unsigned long long *virtual_addresses, unsigned int length)
+void
+check(unsigned int pid, unsigned long long *virtual_addresses, unsigned int length)
 {
 	unsigned int cache_sets = 1024;
 
@@ -88,7 +93,8 @@ void check(unsigned int pid, unsigned long long *virtual_addresses, unsigned int
 	}
 }
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
 	unsigned int i = 0;
 	if (argc < 3) {

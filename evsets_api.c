@@ -34,7 +34,8 @@ static char *pool = NULL;
 static ul pool_sz = 0;
 static ul sz = 0;
 
-int init_evsets(struct config *conf_ptr)
+int
+init_evsets(struct config *conf_ptr)
 {
 	// save config
 	memcpy(&conf, conf_ptr, sizeof(struct config));
@@ -129,7 +130,8 @@ err:
 	return 1;
 }
 
-void close_evsets()
+void
+close_evsets()
 {
 	free(evsets);
 	munmap(probe, pool_sz);
@@ -139,12 +141,14 @@ void close_evsets()
 #endif /* THREAD_COUNTER */
 }
 
-int get_num_evsets()
+int
+get_num_evsets()
 {
 	return num_evsets;
 }
 
-Elem *get_evset(int id)
+Elem *
+get_evset(int id)
 {
 	if (id >= num_evsets) {
 		return NULL;
@@ -153,7 +157,8 @@ Elem *get_evset(int id)
 	return evsets[id];
 }
 
-int find_evsets()
+int
+find_evsets()
 {
 	char *victim = NULL;
 	Elem *ptr = NULL;
