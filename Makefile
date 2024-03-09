@@ -7,7 +7,7 @@ RPATH=-Wl,-R -Wl,${evsets_dir}
 
 default: all
 
-OBJS := list_utils.o cache.o
+OBJS := list_utils.o cache.o eviction.o
 
 all: main.c libevsets.so
 	${CC} ${CFLAGS} ${RPATH} ${LDFLAGS} $^ -o evsets
