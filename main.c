@@ -242,39 +242,6 @@ pick:
 	return ret;
 }
 
-void
-usage(char *name)
-{
-	printf("[?] Usage: %s [flags] [params]\n\n"
-	       "\tFlags:\n"
-	       "\t\t--nohugepages\n"
-	       "\t\t--retry\t(complete repetitions)\n"
-	       "\t\t--backtracking\n"
-	       "\t\t--verbose\n"
-	       "\t\t--verify\t(requires root)\n"
-	       "\t\t--findallcolors\n"
-	       "\t\t--findallcongruent\n"
-	       "\t\t--conflictset\n"
-	       "\tParams:\n"
-	       "\t\t-b N\t\tnumber of lines in initial buffer (default: 3072)\n"
-	       "\t\t-t N\t\tthreshold in cycles (default: calibrates)\n"
-	       "\t\t-c N\t\tcache size in MB (default: 6)\n"
-	       "\t\t-s N\t\tnumber of cache slices (default: 4)\n"
-	       "\t\t-n N\t\tcache associativity (default: 12)\n"
-	       "\t\t-o N\t\tstride for blocks in bytes (default: 4096)\n"
-	       "\t\t-a n|o|g|l\tsearch algorithm (default: 'g')\n"
-	       "\t\t-e 0|1|2|3|4\teviction strategy: 0-haswell, 1-skylake, 2-simple (default: 2)\n"
-	       "\t\t-C N\t\tpage offset (default: 0)\n"
-	       "\t\t-r N\t\tnumer of rounds per test (default: 10)\n"
-	       "\t\t-q N\t\tratio of success for passing a test (default: disabled)\n"
-	       "\t\t-h\t\tshow this help\n\n"
-	       "\tExample:\n\t\t%s -b 3000 -c 6 -s 8 -a g -n 12 -o 4096 -e 2 -C 0 -t 85 --verbose --retry --backtracking\n"
-	       "\n",
-	       name, name);
-}
-
-#define KEY 0xd34dc0d3
-
 int
 main()
 {
