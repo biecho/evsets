@@ -24,7 +24,7 @@ struct config conf = {
 	.stride = 4096,
 	.cache_size = 6 << 20,
 	.cache_way = 12,
-	.cache_slices = 4,
+	.cache_slices = 6,
 	.algorithm = ALGORITHM_GROUP,
 	.strategy = 2,
 	.offset = 0,
@@ -316,7 +316,9 @@ main(int argc, char **argv)
 						{ "noncon", no_argument, 0, 'y' },
 						{ 0, 0, 0, 0 } };
 
-	while ((option = getopt_long(argc, argv, "hb:t:c:s:n:o:a:e:r:C:x:y:", long_options, &option_index)) !=
+	conf.cache_slices = 6;
+
+	while ((option = getopt_long(argc, argv, "hb:t:c:n:o:a:e:r:C:x:y:", long_options, &option_index)) !=
 	       -1) {
 		switch (option) {
 		case 0:
@@ -330,16 +332,6 @@ main(int argc, char **argv)
 			break;
 		case 'c':
 			conf.cache_size = atoi(optarg) << 20;
-			break;
-		case 's':
-			conf.cache_slices = atoi(optarg);
-			if (conf.cache_slices < 1 || conf.cache_slices % 2) {
-				printf("[-] Invalid number of slices\n");
-				conf.cache_slices = 1;
-			} else if (conf.cache_slices > 8) {
-				printf("[-] No support for more than 8 slices\n");
-				conf.cache_slices = 8;
-			}
 			break;
 		case 'n':
 			conf.cache_way = atoi(optarg);
