@@ -4,21 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#ifdef THREAD_COUNTER
-#include <pthread.h>
-#endif
-
 #include "private_structs.h"
-
-#ifdef THREAD_COUNTER
-static pthread_t thread;
-static struct params_t params;
-
-void *counter_thread();
-static inline uint64_t clock_thread();
-int create_counter();
-void destroy_counter();
-#endif /* THREAD_COUNTER */
 
 void traverse_list_simple(cache_block_t *ptr);
 void traverse_list_to_n(cache_block_t *ptr, int n);

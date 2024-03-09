@@ -40,7 +40,6 @@
 #include <math.h>
 #include <stdio.h>
 
-
 struct config configuration = {
 	.rounds = 10,
 	.cal_rounds = 1000000,
@@ -59,7 +58,6 @@ struct config configuration = {
 };
 
 #define MAX_REPS_BACK 100
-
 
 #define MAX_REPS 50
 
@@ -309,7 +307,6 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 
 	return 0;
 }
-
 
 int
 find_evsets()
@@ -577,7 +574,6 @@ pick:
 
 	return ret;
 }
-
 
 void
 usage(char *name)
