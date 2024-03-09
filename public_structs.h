@@ -11,7 +11,6 @@
 
 #define FLAG_VERBOSE (1 << 0)
 #define FLAG_NOHUGEPAGES (1 << 1)
-#define FLAG_CALIBRATE (1 << 2)
 #define FLAG_RETRY (1 << 3)
 #define FLAG_BACKTRACKING (1 << 4)
 #define FLAG_IGNORESLICE (1 << 5)

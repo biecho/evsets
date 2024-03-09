@@ -31,7 +31,7 @@ struct config conf = {
 	.con = 0,
 	.noncon = 0,
 	.buffer_size = 3072,
-	.flags = FLAG_CALIBRATE,
+	.flags = 0,
 	.traverse = &traverse_list_simple,
 };
 
@@ -318,17 +318,13 @@ main(int argc, char **argv)
 
 	conf.cache_slices = 6;
 
-	while ((option = getopt_long(argc, argv, "hb:t:c:n:o:a:e:r:C:x:y:", long_options, &option_index)) !=
+	while ((option = getopt_long(argc, argv, "hb:c:n:o:a:e:r:C:x:y:", long_options, &option_index)) !=
 	       -1) {
 		switch (option) {
 		case 0:
 			break;
 		case 'b':
 			conf.buffer_size = atoi(optarg);
-			break;
-		case 't':
-			conf.flags &= ~FLAG_CALIBRATE;
-			conf.threshold = atoi(optarg);
 			break;
 		case 'c':
 			conf.cache_size = atoi(optarg) << 20;
