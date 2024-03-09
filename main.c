@@ -167,6 +167,7 @@ pick:
 	initialize_list(set, pool_sz);
 
 	int n = conf.buffer_size;
+	printf("[+] Pick %d random from list\n", n);
 	pick_n_random_from_list(set, conf.stride, pool_sz, n);
 	if (list_length(set) != n) {
 		printf("[!] Error: broken list\n");
@@ -175,7 +176,7 @@ pick:
 
 	int ret = tests_avg(set, victim, conf.rounds, threshold);
 
-	if ((victim || conf.algorithm == ALGORITHM_LINEAR) && ret) {
+	if (victim && ret) {
 		printf("[+] Initial candidate set evicted victim\n");
 		// rep = 0;
 	} else {
