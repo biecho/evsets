@@ -150,27 +150,12 @@ static int num_evsets = 0;
 static int colors = 0;
 
 int
-find_evsets(char *probe, char *pool, unsigned long pool_sz, char *victim)
+find_evsets(char *probe, char *pool, unsigned long pool_sz, char *victim, int threshold)
 {
 	cache_block_t *ptr = NULL;
 	cache_block_t *can = NULL;
 
 	*victim = 0; // touch line
-
-	int seed = time(NULL);
-	srand(seed);
-
-	if (conf.flags & FLAG_CALIBRATE) {
-		conf.threshold = calibrate(victim, &conf);
-		printf("[+] Calibrated Threshold = %d\n", conf.threshold);
-	} else {
-		printf("[+] Default Threshold = %d\n", conf.threshold);
-	}
-
-	if (conf.threshold < 0) {
-		printf("[!] Error: calibration\n");
-		return 1;
-	}
 
 	clock_t tts, tte;
 	int rep = 0;
@@ -187,7 +172,7 @@ pick:
 		printf("[+] Compute conflict set: %d\n", list_length(can));
 		victim = (char *)ptr;
 		ptr = can; // new conflict set
-		while (victim && !tests_avg(ptr, victim, conf.rounds, conf.threshold)) {
+		while (victim && !tests_avg(ptr, victim, conf.rounds, threshold)) {
 			victim = (char *)(((cache_block_t *)victim)->next);
 		}
 		can = NULL;
@@ -210,7 +195,7 @@ pick:
 		}
 	}
 
-	ret = tests_avg(ptr, victim, conf.rounds, conf.threshold);
+	ret = tests_avg(ptr, victim, conf.rounds, threshold);
 
 	if ((victim || conf.algorithm == ALGORITHM_LINEAR) && ret) {
 		printf("[+] Initial candidate set evicted victim\n");
@@ -297,7 +282,7 @@ pick:
 			int count = 0, t = 0;
 			while (ptr) {
 				e = list_pop(&ptr);
-				t = tests_avg(evsets[id], (char *)e, conf.rounds, conf.threshold);
+				t = tests_avg(evsets[id], (char *)e, conf.rounds, threshold);
 				if (t) {
 					// create list of congruents
 					e->set = id;
@@ -347,11 +332,11 @@ pick:
 
 				// New victim is not evicted by previous eviction sets
 				for (ret = 0, s = 0; s < id && !ret; s++) {
-					ret = tests_avg(evsets[s], victim, conf.rounds, conf.threshold);
+					ret = tests_avg(evsets[s], victim, conf.rounds, threshold);
 				}
 				if (!ret) {
 					// Rest of initial eviction set can evict victim
-					ret2 = tests_avg(ptr, victim, conf.rounds, conf.threshold);
+					ret2 = tests_avg(ptr, victim, conf.rounds, threshold);
 				}
 			} while ((list_length(ptr) > conf.cache_way) && !ret2 &&
 				 (((conf.flags & FLAG_CONFLICTSET) && victim) ||
@@ -558,7 +543,18 @@ main(int argc, char **argv)
 	printf("[+] Eviction sets allocated for %d colors\n", colors);
 
 	char *victim = &probe[conf.offset << 6];
-	if (find_evsets(probe, pool, pool_sz, victim)) {
+	int seed = time(NULL);
+	srand(seed);
+
+	conf.threshold = calibrate(victim, &conf);
+	printf("[+] Calibrated Threshold = %d\n", conf.threshold);
+
+	if (conf.threshold < 0) {
+		printf("[!] Error: calibration\n");
+		return 1;
+	}
+
+	if (find_evsets(probe, pool, pool_sz, victim, conf.threshold)) {
 		printf("[-] Could not find all desired eviction sets.\n");
 	}
 
