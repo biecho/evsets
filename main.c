@@ -275,91 +275,17 @@ usage(char *name)
 
 #define KEY 0xd34dc0d3
 
-// ./evsets -b 3072 -c 12 -n 16 -o 4096 -a g -e 2 -C 0 --verbose --retry --backtracking --verify
 int
-main(int argc, char **argv)
+main()
 {
-	int option = 0, option_index = 0;
-
-	static struct option long_options[] = { { "buffer-size", no_argument, 0, 'b' },
-						{ "threshold", no_argument, 0, 't' },
-						{ "ratio", no_argument, 0, 'q' },
-						{ "cache-size", no_argument, 0, 'c' },
-						{ "cache-slices", no_argument, 0, 's' },
-						{ "associativity", no_argument, 0, 'n' },
-						{ "stride", no_argument, 0, 'o' },
-						{ "algorithm", no_argument, 0, 'a' },
-						{ "strategy", no_argument, 0, 'e' },
-						{ "offset", no_argument, 0, 'C' },
-						{ "rounds", no_argument, 0, 'r' },
-						{ "help", no_argument, 0, 'h' },
-						{ "con", no_argument, 0, 'x' },
-						{ "noncon", no_argument, 0, 'y' },
-						{ 0, 0, 0, 0 } };
-
+	conf.buffer_size = 3072;
+	conf.cache_size = 12 << 20;
+	conf.cache_way = 16;
+	conf.stride = 4096;
+	conf.algorithm = ALGORITHM_GROUP;
+	conf.strategy = 2;
+	conf.offset = 0;
 	conf.cache_slices = 6;
-
-	while ((option = getopt_long(argc, argv, "hb:c:n:o:a:e:r:C:x:y:", long_options, &option_index)) !=
-	       -1) {
-		switch (option) {
-		case 0:
-			break;
-		case 'b':
-			conf.buffer_size = atoi(optarg);
-			break;
-		case 'c':
-			conf.cache_size = atoi(optarg) << 20;
-			break;
-		case 'n':
-			conf.cache_way = atoi(optarg);
-			if (conf.cache_way < 1) {
-				conf.cache_way = 1;
-			}
-			break;
-		case 'o':
-			conf.stride = atoi(optarg);
-			break;
-		case 'a':
-			if (strncmp(optarg, "g", strlen(optarg)) == 0) {
-				conf.algorithm = ALGORITHM_GROUP;
-			} else if (strncmp(optarg, "b", strlen(optarg)) == 0) {
-				conf.algorithm = ALGORITHM_BINARY;
-			} else if (strncmp(optarg, "l", strlen(optarg)) == 0) {
-				conf.algorithm = ALGORITHM_LINEAR;
-			} else if (strncmp(optarg, "n", strlen(optarg)) == 0) {
-				conf.algorithm = ALGORITHM_NAIVE;
-			} else if (strncmp(optarg, "o", strlen(optarg)) == 0) {
-				conf.algorithm = ALGORITHM_NAIVE_OPTIMISTIC;
-			}
-			break;
-		case 'e':
-			conf.strategy = atoi(optarg);
-			break;
-		case 'C':
-			conf.offset = atoi(optarg);
-			break;
-		case 'r':
-			conf.rounds = atoi(optarg);
-			break;
-		case 'x':
-			conf.con = atoi(optarg);
-			if (conf.con < 0) {
-				conf.con = 0;
-			}
-			break;
-		case 'y':
-			conf.noncon = atoi(optarg);
-			if (conf.noncon < 0) {
-				conf.noncon = 0;
-			}
-			break;
-		case 'h':
-			usage(argv[0]);
-			return 0;
-		default:
-			break;
-		}
-	}
 
 	unsigned long long sz = conf.buffer_size * conf.stride;
 	unsigned long long pool_sz = 128 << 20; // 128MB
