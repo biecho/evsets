@@ -13,15 +13,6 @@ traverse_list_simple(cache_block_t *ptr)
 }
 
 inline void
-traverse_list_to_n(cache_block_t *ptr, int n)
-{
-	while (ptr && n-- > 0) {
-		maccess(ptr);
-		ptr = ptr->next;
-	}
-}
-
-inline void
 traverse_list_time(cache_block_t *ptr, void (*trav)(cache_block_t *))
 {
 	size_t time;
@@ -99,23 +90,6 @@ tests_avg(cache_block_t *ptr, char *victim, int rep, int threshold, void (*trav)
 	}
 	ret = (float)vic->delta / rep;
 	return ret > threshold;
-}
-
-int
-tests(cache_block_t *ptr, char *victim, int rep, int threshold, float ratio, void (*trav)(cache_block_t *))
-{
-	int i = 0, ret = 0, delta, hsz = rep * 100;
-	struct histogram *hist;
-	if ((hist = (struct histogram *)calloc(hsz, sizeof(struct histogram))) == NULL) {
-		return 0;
-	}
-	for (i = 0; i < rep; i++) {
-		delta = test_set(ptr, victim, trav);
-		hist_add(hist, hsz, delta);
-	}
-	ret = hist_q(hist, hsz, threshold);
-	free(hist);
-	return ret > (int)(rep * ratio);
 }
 
 int
