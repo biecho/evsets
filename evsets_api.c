@@ -98,30 +98,6 @@ init_evsets(struct config *conf_ptr)
 	// Set eviction strategy
 	printf("[*] Setting eviction strategy based on configuration\n");
 	switch (conf.strategy) {
-	case STRATEGY_HASWELL:
-		printf("[+] Using Haswell-specific list traversal strategy\n");
-		conf.traverse = &traverse_list_haswell;
-		break;
-	case STRATEGY_SKYLAKE:
-		printf("[+] Using Skylake-specific list traversal strategy\n");
-		conf.traverse = &traverse_list_skylake;
-		break;
-	case STRATEGY_ASMSKY:
-		printf("[+] Using Skylake-specific ASM list traversal strategy\n");
-		conf.traverse = &traverse_list_asm_skylake;
-		break;
-	case STRATEGY_ASMHAS:
-		printf("[+] Using Haswell-specific ASM list traversal strategy\n");
-		conf.traverse = &traverse_list_asm_haswell;
-		break;
-	case STRATEGY_ASM:
-		printf("[+] Using generic ASM list traversal strategy\n");
-		conf.traverse = &traverse_list_asm_simple;
-		break;
-	case STRATEGY_RRIP:
-		printf("[+] Using RRIP list traversal strategy\n");
-		conf.traverse = &traverse_list_rrip;
-		break;
 	case STRATEGY_SIMPLE:
 	default:
 		printf("[+] Using simple list traversal strategy (default)\n");

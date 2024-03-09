@@ -20,12 +20,7 @@ int create_counter();
 void destroy_counter();
 #endif /* THREAD_COUNTER */
 
-void traverse_list_skylake(cache_block_t *ptr);
-void traverse_list_haswell(cache_block_t *ptr);
 void traverse_list_simple(cache_block_t *ptr);
-void traverse_list_asm_skylake(cache_block_t *ptr);
-void traverse_list_asm_haswell(cache_block_t *ptr);
-void traverse_list_asm_simple(cache_block_t *ptr);
 void traverse_list_rrip(cache_block_t *ptr);
 void traverse_list_to_n(cache_block_t *ptr, int n);
 void traverse_list_time(cache_block_t *ptr, void (*trav)(cache_block_t *));
