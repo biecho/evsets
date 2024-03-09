@@ -55,29 +55,6 @@ test_set(cache_block_t *ptr, char *victim, void (*trav)(cache_block_t *))
 }
 
 int
-test_and_time(cache_block_t *ptr, int rep, int threshold, int ways, void (*trav)(cache_block_t *))
-{
-	int i = 0, count = 0;
-	cache_block_t *tmp = ptr;
-	while (tmp) {
-		tmp->delta = 0;
-		tmp = tmp->next;
-	}
-	for (i = 0; i < rep; i++) {
-		tmp = ptr;
-		traverse_list_time(tmp, trav);
-	}
-	while (ptr) {
-		ptr->delta = (float)ptr->delta / rep;
-		if (ptr->delta > (unsigned)threshold) {
-			count++;
-		}
-		ptr = ptr->next;
-	}
-	return count > ways;
-}
-
-int
 tests_avg(cache_block_t *ptr, char *victim, int rep, int threshold, void (*trav)(cache_block_t *))
 {
 	int i = 0, ret = 0, delta = 0;
