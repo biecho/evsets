@@ -135,14 +135,13 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim, int cache_wa
 	return 0;
 }
 
-int find_eviction_set(char *pool, unsigned long pool_sz, char *victim, struct eviction_config_t conf, eviction_set_t* eviction_set)
+int find_eviction_set(char *pool, unsigned long pool_sz, char *victim, struct eviction_config_t conf, cache_block_t **eviction_set)
 {
 	cache_block_t *set = NULL;
 	cache_block_t *can = NULL;
 
 	*victim = 0; // touch line
 
-	clock_t tts, tte;
 	int rep = 0;
 
 	conf.threshold = calibrate(victim, &conf);
@@ -153,7 +152,6 @@ int find_eviction_set(char *pool, unsigned long pool_sz, char *victim, struct ev
 		return 1;
 	}
 
-	tts = clock();
 pick:
 
 	set = (cache_block_t *)&pool[0];
@@ -182,35 +180,17 @@ pick:
 		return 1;
 	}
 
-	clock_t ts, te;
-
 	int len = 0;
 	// Iterate over all colors of conf.offset
 	do {
 		printf("[+] Created linked list structure (%d elements)\n", list_length(set));
 		printf("[+] Starting group reduction...\n");
 
-		ts = clock();
 		ret = gt_eviction(&set, &can, victim, conf.cache_way, conf.rounds, conf.threshold);
-		te = clock();
-
-		tte = clock();
-
 		len = list_length(set);
+
 		if (ret) {
 			printf("[!] Error: optimal eviction set not found (length=%d)\n", len);
-		} else {
-			printf("[+] Reduction time: %f seconds\n", ((double)(te - ts)) / CLOCKS_PER_SEC);
-			printf("[+] Total execution time: %f seconds\n",
-			       ((double)(tte - tts)) / CLOCKS_PER_SEC);
-
-			// Re-Check that it's an optimal eviction set
-			printf("[+] Found minimal eviction set for %p (length=%d): ", 
-			       (void *)victim, len);
-			print_list(set);
-		}
-
-		if (ret) {
 			if (rep < MAX_REPS) {
 				list_concat(&set, can);
 				can = NULL;
@@ -222,15 +202,15 @@ pick:
 				printf("[!] Error: exceeded max repetitions\n");
 			}
 		} else if (!ret) {
+            *eviction_set = set;
 			rep = 0;
 		} else {
 			list_concat(&set, can);
 			can = NULL;
-		}
+        }
 
 		// Remove rest of congruent elements
 		set = can;
-		printf("You do not want to find all, right? ----------------------\n");
 		break;
 	} while (rep < MAX_REPS);
 

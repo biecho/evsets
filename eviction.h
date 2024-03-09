@@ -19,11 +19,7 @@ struct eviction_config_t {
 	int threshold;
 };
 
-typedef struct eviction_set_t {
-    void **addresses; 
-    size_t count;
-} eviction_set_t;
-
-int find_eviction_set(char *pool, unsigned long pool_sz, char *victim, struct eviction_config_t conf, eviction_set_t* eviction_set);
+int find_eviction_set(char *pool, unsigned long pool_sz, char *victim, struct eviction_config_t conf,
+		      cache_block_t **eviction_set);
 
 #endif

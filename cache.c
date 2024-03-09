@@ -149,7 +149,7 @@ traverse_list_simple(cache_block_t *set)
 	}
 }
 
-static int
+int
 test_set(cache_block_t *set, char *victim)
 {
 	maccess(victim);

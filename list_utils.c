@@ -100,6 +100,26 @@ list_from_chunks(cache_block_t **ptr, cache_block_t **chunks, int avoid, int len
 	}
 }
 
+/**
+ * Extracts the first n bits of a value, offset by k bits.
+ * 
+ * @param value The value from which bits are to be extracted.
+ * @param n The number of bits to extract.
+ * @param k The offset from which to start bit extraction.
+ * @return The extracted bits as the least significant bits of the result.
+ */
+uint64_t extract_bits(uint64_t value, unsigned int n, unsigned int k) {
+    // Ensure n and k are within reasonable bounds.
+    if (n > 64) n = 64;
+    if (k > 64) k = 64;
+    
+    // Right shift by k to discard the first k bits.
+    // Then apply a bitmask to retain only the first n bits.
+    uint64_t mask = (1ULL << n) - 1;
+    return (value >> k) & mask;
+}
+
+
 void
 print_list(cache_block_t *ptr)
 {
@@ -108,7 +128,9 @@ print_list(cache_block_t *ptr)
 		return;
 	}
 	while (ptr != NULL) {
-		printf("%p ", (void *)ptr);
+		uint64_t set_index = extract_bits(ptr, 11, 6);
+		printf("Set index: 0x%llx ", set_index);
+		printf("%p\n", (void *)ptr);
 		ptr = ptr->next;
 	}
 	printf("\n");
@@ -172,4 +194,3 @@ pick_n_random_from_list(cache_block_t *set, unsigned long stride, unsigned long 
 	free(indices); // Free the allocated indices array.
 	current_block->next = NULL; // Mark the end of the list.
 }
-
