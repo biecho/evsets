@@ -254,7 +254,7 @@ print_list(cache_block_t *ptr)
 }
 
 void
-initialize_list(cache_block_t *src, ul sz)
+initialize_list(cache_block_t *src, unsigned long sz)
 {
 	unsigned int j = 0;
 	for (j = 0; j < (sz / sizeof(cache_block_t)); j++) {
@@ -310,35 +310,6 @@ pick_n_random_from_list(cache_block_t *set, unsigned long stride, unsigned long 
 
 	free(indices); // Free the allocated indices array.
 	current_block->next = NULL; // Mark the end of the list.
-}
-
-void
-rearrange_list(cache_block_t **ptr, ul stride, ul sz, ul offset)
-{
-	unsigned int len = (sz / sizeof(cache_block_t)) - offset, i = 0;
-	cache_block_t *p = *ptr;
-	if (!p) {
-		return;
-	}
-	unsigned int j = 0, step = stride / sizeof(cache_block_t);
-	for (i = step; i < len - 1; i += step) {
-		if (p[i].set < 0) {
-			p[i].set = -2;
-			p[i].prev = &p[j];
-			p[j].next = &p[i];
-			j = i;
-		}
-	}
-	p[0].prev = NULL;
-	p[j].next = NULL;
-	while (p && p->set > -1) {
-		p = p->next;
-	}
-	*ptr = p;
-	if (p) {
-		p->set = -2;
-		p->prev = NULL;
-	}
 }
 
 void

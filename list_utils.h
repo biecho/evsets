@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include "cache.h"
-#include "micro.h"
 
 int list_length(cache_block_t *ptr);
 cache_block_t *list_pop(cache_block_t **ptr);
@@ -18,11 +17,9 @@ void list_from_chunks(cache_block_t **ptr, cache_block_t **chunks, int avoid, in
 void list_set_id(cache_block_t *ptr, int id);
 void print_list(cache_block_t *ptr);
 
-//void initialize_random_list(cache_block_t *ptr, ul offset, ul sz, cache_block_t *base);
-void initialize_list(cache_block_t *ptr, ul sz);
+void initialize_list(cache_block_t *ptr, unsigned long sz);
 void pick_n_random_from_list(cache_block_t *set, unsigned long stride, unsigned long set_size,
 			     unsigned long n);
-void rearrange_list(cache_block_t **ptr, ul stride, ul sz, ul offset);
 void generate_conflict_set(cache_block_t **ptr, cache_block_t **out, int rep, int threshold);
 
 #endif /* list_utils_H */

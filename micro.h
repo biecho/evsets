@@ -21,30 +21,6 @@ flush(void *p)
 }
 
 inline uint64_t
-rdtsc()
-{
-	unsigned a, d;
-	__asm__ volatile("cpuid\n"
-			 "rdtsc\n"
-			 "mov %%edx, %0\n"
-			 "mov %%eax, %1\n"
-			 : "=r"(a), "=r"(d)::"%rax", "%rbx", "%rcx", "%rdx");
-	return ((uint64_t)a << 32) | d;
-}
-
-inline uint64_t
-rdtscp()
-{
-	unsigned a, d;
-	__asm__ volatile("rdtscp\n"
-			 "mov %%edx, %0\n"
-			 "mov %%eax, %1\n"
-			 "cpuid\n"
-			 : "=r"(a), "=r"(d)::"%rax", "%rbx", "%rcx", "%rdx");
-	return ((uint64_t)a << 32) | d;
-}
-
-inline uint64_t
 rdtscfence()
 {
 	uint64_t a, d;
