@@ -52,7 +52,6 @@ struct config configuration = {
 	.offset = 0,
 	.con = 0,
 	.noncon = 0,
-	.ratio = -1.0,
 	.buffer_size = 3072,
 	.flags = FLAG_CALIBRATE,
 };
@@ -320,7 +319,7 @@ pick:
 		victim = (char *)ptr;
 		ptr = can; // new conflict set
 		while (victim &&
-		       !tests(ptr, victim, conf.rounds, conf.threshold, conf.ratio, conf.traverse)) {
+		       !tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse)) {
 			victim = (char *)(((cache_block_t *)victim)->next);
 		}
 		can = NULL;
@@ -346,7 +345,7 @@ pick:
 	if (conf.algorithm == ALGORITHM_LINEAR) {
 		ret = test_and_time(ptr, conf.rounds, conf.threshold, conf.cache_way, conf.traverse);
 	} else if (victim) {
-			ret = tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse);
+		ret = tests_avg(ptr, victim, conf.rounds, conf.threshold, conf.traverse);
 	}
 	if ((victim || conf.algorithm == ALGORITHM_LINEAR) && ret) {
 		printf("[+] Initial candidate set evicted victim\n");
@@ -444,7 +443,7 @@ pick:
 			while (ptr) {
 				e = list_pop(&ptr);
 				t = tests_avg(evsets[id], (char *)e, conf.rounds, conf.threshold,
-							conf.traverse);
+					      conf.traverse);
 				if (t) {
 					// create list of congruents
 					e->set = id;
@@ -494,23 +493,13 @@ pick:
 
 				// New victim is not evicted by previous eviction sets
 				for (ret = 0, s = 0; s < id && !ret; s++) {
-					if (conf.ratio > 0.0) {
-						ret = tests(evsets[s], victim, conf.rounds, conf.threshold,
-							    conf.ratio, conf.traverse);
-					} else {
-						ret = tests_avg(evsets[s], victim, conf.rounds,
-								conf.threshold, conf.traverse);
-					}
+					ret = tests_avg(evsets[s], victim, conf.rounds, conf.threshold,
+							conf.traverse);
 				}
 				if (!ret) {
 					// Rest of initial eviction set can evict victim
-					if (conf.ratio > 0.0) {
-						ret2 = tests(ptr, victim, conf.rounds, conf.threshold,
-							     conf.ratio, conf.traverse);
-					} else {
-						ret2 = tests_avg(ptr, victim, conf.rounds, conf.threshold,
-								 conf.traverse);
-					}
+					ret2 = tests_avg(ptr, victim, conf.rounds, conf.threshold,
+							 conf.traverse);
 				}
 			} while ((list_length(ptr) > conf.cache_way) && !ret2 &&
 				 (((conf.flags & FLAG_CONFLICTSET) && victim) ||
@@ -599,7 +588,7 @@ main(int argc, char **argv)
 						{ "noncon", no_argument, 0, 'y' },
 						{ 0, 0, 0, 0 } };
 
-	while ((option = getopt_long(argc, argv, "hb:t:q:c:s:n:o:a:e:r:C:x:y:", long_options,
+	while ((option = getopt_long(argc, argv, "hb:t:c:s:n:o:a:e:r:C:x:y:", long_options,
 				     &option_index)) != -1) {
 		switch (option) {
 		case 0:
@@ -610,9 +599,6 @@ main(int argc, char **argv)
 		case 't':
 			configuration.flags &= ~FLAG_CALIBRATE;
 			configuration.threshold = atoi(optarg);
-			break;
-		case 'q':
-			configuration.ratio = atof(optarg);
 			break;
 		case 'c':
 			configuration.cache_size = atoi(optarg) << 20;
