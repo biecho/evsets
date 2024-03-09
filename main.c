@@ -1,44 +1,22 @@
-#include <stdio.h>
-#include <time.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <fcntl.h>
-#include <getopt.h>
-#include <string.h>
-#ifdef __MACH__
-#include <mach/vm_statistics.h>
-#endif
-
 #include "cache.h"
-#include <stdio.h>
-#include <time.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <getopt.h>
-#include <string.h>
-
-#include "list_utils.h"
 #include "hist_utils.h"
-#include "utils.h"
-#include "cache.h"
-#include "micro.h"
 #include "list_utils.h"
-#include "utils.h"
+#include "micro.h"
 #include "public_structs.h"
+#include "utils.h"
+#include <fcntl.h>
+#include <getopt.h>
 #include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
 
 struct config conf = {
 	.rounds = 10,
@@ -68,17 +46,6 @@ static char *probe = NULL;
 static char *pool = NULL;
 static ul pool_sz = 0;
 static ul sz = 0;
-
-void
-close_evsets()
-{
-	free(evsets);
-	munmap(probe, pool_sz);
-	munmap(pool, pool_sz);
-#ifdef THREAD_COUNTER
-	destroy_counter();
-#endif /* THREAD_COUNTER */
-}
 
 int
 get_num_evsets()
@@ -620,7 +587,9 @@ main(int argc, char **argv)
 		printf("[-] Could not find all desired eviction sets.\n");
 	}
 
-	close_evsets();
+	free(evsets);
+	munmap(probe, pool_sz);
+	munmap(pool, pool_sz);
 
 	return 0;
 
