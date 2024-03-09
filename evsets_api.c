@@ -39,33 +39,40 @@ init_evsets(struct config *conf_ptr)
 {
 	// save config
 	memcpy(&conf, conf_ptr, sizeof(struct config));
+	printf("[+] Configuration loaded\n");
 
 #ifdef THREAD_COUNTER
+	printf("[*] Thread counter enabled\n");
 	if (create_counter()) {
+		printf("[!] Error: Failed to create thread counter\n");
 		return 1;
 	}
 #endif /* THREAD_COUNTER */
 
 	sz = conf.buffer_size * conf.stride;
-	pool_sz = 128 << 20;
+	pool_sz = 128 << 20; // 128MB
+	printf("[+] Total buffer size required: %llu bytes\n", sz);
+	printf("[+] Memory pool size allocated: %llu bytes (128MB)\n", pool_sz);
+
 	if (sz > pool_sz) {
-		printf("[!] Error: not enough space\n");
+		printf("[!] Error: Buffer size %llu exceeds allocated pool size %llu\n", sz, pool_sz);
 		return 1;
 	}
 
 	if (conf.flags & FLAG_NOHUGEPAGES) {
+		printf("[*] HugePages not used\n");
 		pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 		probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0,
-				     0); // add MAP_HUGETLB for testing effect of cache sets
+				     0);
 	} else {
-#ifdef MAP_HUGETLB
+		printf("[*] HugePages used if available\n");
 		pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE,
 				    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
 		probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE,
 				     MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
-#elif defined VM_FLAGS_SUPERPAGE_SIZE_2MB
-		/* Mac OS X specific: the file descriptor used for creating MAP_ANON
-		regions can be used to pass some Mach VM flags */
+#ifdef VM_FLAGS_SUPERPAGE_SIZE_2MB
+		// Specific handling for macOS, showing usage of superpages if applicable.
+		printf("[*] macOS specific: Using superpages if available\n");
 		pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON,
 				    VM_FLAGS_SUPERPAGE_SIZE_2MB, 0);
 		probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON,
@@ -74,50 +81,63 @@ init_evsets(struct config *conf_ptr)
 	}
 
 	if (pool == MAP_FAILED || probe == MAP_FAILED) {
-		printf("[!] Error: allocation\n");
+		printf("[!] Error: Memory allocation failed\n");
 		return 1;
 	}
 
+	printf("[+] Memory allocated successfully: Pool at %p, Probe at %p\n", (void *)pool, (void *)probe);
 	printf("[+] %llu MB buffer allocated at %p (%llu blocks)\n", sz >> 20,
 	       (void *)&pool[conf.offset << 6], sz / sizeof(cache_block_t));
 
 	if (conf.stride < 64 || conf.stride % 64 != 0) {
-		printf("[!] Error: invalid stride\n");
+		printf("[!] Error: Invalid stride %d. Stride must be a multiple of 64 and >= 64.\n",
+		       conf.stride);
 		goto err;
 	}
 
 	// Set eviction strategy
+	printf("[*] Setting eviction strategy based on configuration\n");
 	switch (conf.strategy) {
 	case STRATEGY_HASWELL:
+		printf("[+] Using Haswell-specific list traversal strategy\n");
 		conf.traverse = &traverse_list_haswell;
 		break;
 	case STRATEGY_SKYLAKE:
+		printf("[+] Using Skylake-specific list traversal strategy\n");
 		conf.traverse = &traverse_list_skylake;
 		break;
 	case STRATEGY_ASMSKY:
+		printf("[+] Using Skylake-specific ASM list traversal strategy\n");
 		conf.traverse = &traverse_list_asm_skylake;
 		break;
 	case STRATEGY_ASMHAS:
+		printf("[+] Using Haswell-specific ASM list traversal strategy\n");
 		conf.traverse = &traverse_list_asm_haswell;
 		break;
 	case STRATEGY_ASM:
+		printf("[+] Using generic ASM list traversal strategy\n");
 		conf.traverse = &traverse_list_asm_simple;
 		break;
 	case STRATEGY_RRIP:
+		printf("[+] Using RRIP list traversal strategy\n");
 		conf.traverse = &traverse_list_rrip;
 		break;
 	case STRATEGY_SIMPLE:
 	default:
+		printf("[+] Using simple list traversal strategy (default)\n");
 		conf.traverse = &traverse_list_simple;
 		break;
 	}
 
 	colors = conf.cache_size / conf.cache_way / conf.stride;
+	printf("[+] conf.cache_size = %d, conf.cache_way = %d, conf.stride = %d, colors = %d\n",
+	       conf.cache_size, conf.cache_way, conf.stride, colors);
 	evsets = calloc(colors, sizeof(cache_block_t *));
 	if (!evsets) {
-		printf("[!] Error: allocate\n");
+		printf("[!] Error: Failed to allocate memory for eviction sets\n");
 		goto err;
 	}
+	printf("[+] Eviction sets allocated for %d colors\n", colors);
 
 	return 0;
 
@@ -125,6 +145,7 @@ err:
 	munmap(probe, pool_sz);
 	munmap(pool, pool_sz);
 #ifdef THREAD_COUNTER
+	printf("[*] Cleaning up thread counter\n");
 	destroy_counter();
 #endif /* THREAD_COUNTER */
 	return 1;

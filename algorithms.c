@@ -158,7 +158,8 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 	int h = ceil(log(sz) / log(rate)), l = 0;
 
 	// Backtrack record
-	cache_block_t **back = (cache_block_t **)calloc(h * 2, sizeof(cache_block_t *)); // TODO: check height bound
+	cache_block_t **back =
+		(cache_block_t **)calloc(h * 2, sizeof(cache_block_t *)); // TODO: check height bound
 	if (!back) {
 		free(chunks);
 		free(ichunks);
