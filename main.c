@@ -175,7 +175,7 @@ pick:
 		printf("[+] Initial candidate set evicted victim\n");
 	} else {
 		printf("[!] Error: invalid candidate set\n");
-		if ((conf.flags & FLAG_RETRY) && rep < MAX_REPS) {
+		if (rep < MAX_REPS) {
 			rep++;
 			goto pick;
 		} else if (rep >= MAX_REPS) {
@@ -282,7 +282,7 @@ main(int argc, char **argv)
 {
 	int option = 0, option_index = 0;
 
-	static struct option long_options[] = { { "retry", no_argument, 0, FLAG_RETRY ^ KEY },
+	static struct option long_options[] = { 
 						{ "backtracking", no_argument, 0, FLAG_BACKTRACKING ^ KEY },
 						{ "verify", no_argument, 0, FLAG_VERIFY ^ KEY },
 						{ "buffer-size", no_argument, 0, 'b' },
