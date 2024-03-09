@@ -18,28 +18,18 @@
 #include <time.h>
 #include <unistd.h>
 
-struct config conf = {
-	.rounds = 10,
-	.cal_rounds = 1000000,
-	.stride = 4096,
-	.cache_size = 12 << 20,
-	.cache_way = 12,
-	.cache_slices = 6,
-	.buffer_size = 3072,
-};
-
 #define MAX_REPS_BACK 100
 #define MAX_REPS 50
 
 int
-gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
+gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim, int cache_way, int rounds, int threshold)
 {
 	// Random chunk selection
-	cache_block_t **chunks = (cache_block_t **)calloc(conf.cache_way + 1, sizeof(cache_block_t *));
+	cache_block_t **chunks = (cache_block_t **)calloc(cache_way + 1, sizeof(cache_block_t *));
 	if (!chunks) {
 		return 1;
 	}
-	int *ichunks = (int *)calloc(conf.cache_way + 1, sizeof(int)), i;
+	int *ichunks = (int *)calloc(cache_way + 1, sizeof(int)), i;
 	if (!ichunks) {
 		free(chunks);
 		return 1;
@@ -48,8 +38,8 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 	int len = list_length(*ptr), cans = 0;
 
 	// Calculate length: h = log(a/(a+1), a/n)
-	double sz = (double)conf.cache_way / len;
-	double rate = (double)conf.cache_way / (conf.cache_way + 1);
+	double sz = (double)cache_way / len;
+	double rate = (double)cache_way / (cache_way + 1);
 	int h = ceil(log(sz) / log(rate)), l = 0;
 
 	// Backtrack record
@@ -63,25 +53,25 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 
 	int repeat = 0;
 	do {
-		for (i = 0; i < conf.cache_way + 1; i++) {
+		for (i = 0; i < cache_way + 1; i++) {
 			ichunks[i] = i;
 		}
-		shuffle(ichunks, conf.cache_way + 1);
+		shuffle(ichunks, cache_way + 1);
 
 		// Reduce
-		while (len > conf.cache_way) {
-			list_split(*ptr, chunks, conf.cache_way + 1);
+		while (len > cache_way) {
+			list_split(*ptr, chunks, cache_way + 1);
 			int n = 0, ret = 0;
 
 			// Try paths
 			do {
-				list_from_chunks(ptr, chunks, ichunks[n], conf.cache_way + 1);
+				list_from_chunks(ptr, chunks, ichunks[n], cache_way + 1);
 				n = n + 1;
-				ret = tests_avg(*ptr, victim, conf.rounds, conf.threshold);
-			} while (!ret && (n < conf.cache_way + 1));
+				ret = tests_avg(*ptr, victim, rounds, threshold);
+			} while (!ret && (n < cache_way + 1));
 
 			// If find smaller eviction set remove chunk
-			if (ret && n <= conf.cache_way) {
+			if (ret && n <= cache_way) {
 				back[l] = chunks[ichunks[n - 1]]; // store ptr to discarded chunk
 				cans += list_length(back[l]); // add length of removed chunk
 				len = list_length(*ptr);
@@ -121,9 +111,9 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 	free(back);
 
 	int ret = 0;
-	ret = tests_avg(*ptr, victim, conf.rounds, conf.threshold);
+	ret = tests_avg(*ptr, victim, rounds, threshold);
 	if (ret) {
-		if (len > conf.cache_way) {
+		if (len > cache_way) {
 			return 1;
 		}
 	} else {
@@ -138,7 +128,7 @@ static int num_evsets = 0;
 static int colors = 0;
 
 int
-find_evsets(char *pool, unsigned long pool_sz, char *victim, int threshold)
+find_evsets(char *pool, unsigned long pool_sz, char *victim, struct config conf)
 {
 	cache_block_t *set = NULL;
 	cache_block_t *can = NULL;
@@ -162,7 +152,7 @@ pick:
 		return 1;
 	}
 
-	int ret = tests_avg(set, victim, conf.rounds, threshold);
+	int ret = tests_avg(set, victim, conf.rounds, conf.threshold);
 
 	if (victim && ret) {
 		printf("[+] Initial candidate set evicted victim\n");
@@ -187,7 +177,7 @@ pick:
 		printf("[+] Starting group reduction...\n");
 
 		ts = clock();
-		ret = gt_eviction(&set, &can, victim);
+		ret = gt_eviction(&set, &can, victim, conf.cache_way, conf.rounds, conf.threshold);
 		te = clock();
 
 		tte = clock();
@@ -239,14 +229,19 @@ pick:
 int
 main()
 {
-	conf.buffer_size = 3072;
-	conf.cache_size = 12 << 20;
-	conf.cache_way = 16;
-	conf.stride = 4096;
-	conf.cache_slices = 6;
+	struct config conf = {
+		.rounds = 10,
+		.cal_rounds = 1000000,
+		.stride = 4096,
+		.cache_size = 12 << 20,
+		.cache_way = 16,
+		.cache_slices = 6,
+		.buffer_size = 3072,
+	};
 
 	unsigned long long sz = conf.buffer_size * conf.stride;
 	unsigned long long pool_sz = 128 << 20; // 128MB
+
 	printf("[+] Total buffer size required: %llu bytes\n", sz);
 	printf("[+] Memory pool size allocated: %llu bytes (128MB)\n", pool_sz);
 
@@ -266,14 +261,8 @@ main()
 	}
 
 	printf("[+] Memory allocated successfully: Pool at %p, Probe at %p\n", (void *)pool, (void *)probe);
-	printf("[+] %llu MB buffer allocated at %p (%llu blocks)\n", sz >> 20,
-	       (void *)&pool[0], sz / sizeof(cache_block_t));
-
-	if (conf.stride < 64 || conf.stride % 64 != 0) {
-		printf("[!] Error: Invalid stride %d. Stride must be a multiple of 64 and >= 64.\n",
-		       conf.stride);
-		goto err;
-	}
+	printf("[+] %llu MB buffer allocated at %p (%llu blocks)\n", sz >> 20, (void *)&pool[0],
+	       sz / sizeof(cache_block_t));
 
 	colors = conf.cache_size / conf.cache_way / conf.stride;
 	printf("[+] conf.cache_size = %d, conf.cache_way = %d, conf.stride = %d, colors = %d\n",
@@ -297,7 +286,7 @@ main()
 		return 1;
 	}
 
-	if (find_evsets(pool, pool_sz, victim, conf.threshold)) {
+	if (find_evsets(pool, pool_sz, victim, conf)) {
 		printf("[-] Could not find all desired eviction sets.\n");
 	}
 
