@@ -4,23 +4,23 @@
 #include "public_structs.h"
 
 inline void
-traverse_list_simple(cache_block_t *ptr)
+traverse_list_simple(cache_block_t *set)
 {
-	while (ptr) {
-		maccess(ptr);
-		ptr = ptr->next;
+	while (set) {
+		maccess(set);
+		set = set->next;
 	}
 }
 
 int
-test_set(cache_block_t *ptr, char *victim)
+test_set(cache_block_t *set, char *victim)
 {
 	maccess(victim);
 	maccess(victim);
 	maccess(victim);
 	maccess(victim);
 
-	traverse_list_simple(ptr);
+	traverse_list_simple(set);
 
 	maccess(victim + 222); // page walk
 
@@ -31,19 +31,25 @@ test_set(cache_block_t *ptr, char *victim)
 	return delta;
 }
 
+/**
+ * 
+ * @return 1 if average delta exceeds threshold, indicating performance issue; otherwise, 0.
+*/
 int
-tests_avg(cache_block_t *ptr, char *victim, int rep, int threshold)
+tests_avg(cache_block_t *set, char *victim, int rep, int threshold)
 {
-	int i = 0, ret = 0, delta = 0;
+	int i = 0, avg = 0, delta = 0;
 	cache_block_t *vic = (cache_block_t *)victim;
 	vic->delta = 0;
 	for (i = 0; i < rep; i++) {
-		delta = test_set(ptr, victim);
-		if (delta < 800)
+		delta = test_set(set, victim);
+		if (delta < 800) {
+			// Otherwise, we probably have a noisy measurement
 			vic->delta += delta;
+		}
 	}
-	ret = (float)vic->delta / rep;
-	return ret > threshold;
+	avg = (float)vic->delta / rep;
+	return avg > threshold;
 }
 
 int

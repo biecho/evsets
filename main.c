@@ -150,7 +150,7 @@ static int num_evsets = 0;
 static int colors = 0;
 
 int
-find_evsets(char *probe, char *pool, unsigned long pool_sz, char* victim)
+find_evsets(char *probe, char *pool, unsigned long pool_sz, char *victim)
 {
 	cache_block_t *ptr = NULL;
 	cache_block_t *can = NULL;
@@ -527,10 +527,10 @@ main(int argc, char **argv)
 		return 1;
 	}
 
-	char *pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,
-			    0, 0);
-	char *probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,
-			     0, 0);
+	char *pool = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE,
+				  MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
+	char *probe = (char *)mmap(NULL, pool_sz, PROT_READ | PROT_WRITE,
+				   MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
 
 	if (pool == MAP_FAILED || probe == MAP_FAILED) {
 		printf("[!] Error: Memory allocation failed\n");
