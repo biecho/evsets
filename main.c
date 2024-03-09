@@ -166,7 +166,7 @@ pick:
 	ptr = (cache_block_t *)&pool[0];
 	initialize_list(ptr, pool_sz);
 
-	pick_n_random_from_list(ptr, conf.stride, pool_sz, 0, conf.buffer_size);
+	pick_n_random_from_list(ptr, conf.stride, pool_sz, conf.buffer_size);
 	if (list_length(ptr) != conf.buffer_size) {
 		printf("[!] Error: broken list\n");
 		return 1;

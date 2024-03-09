@@ -264,35 +264,51 @@ initialize_list(cache_block_t *src, ul sz)
 	}
 }
 
+/**
+ * Randomly selects n elements from a set of cache blocks and re-links them into a new list.
+ * This function assumes the set is initially laid out in an array with a specified stride between elements.
+ * 
+ * @param set Pointer to the array of cache blocks.
+ * @param stride Distance (in bytes) between consecutive cache blocks in the array.
+ * @param set_size Total size (in bytes) of the array containing the cache blocks.
+ * @param n Number of blocks to randomly select and link.
+ */
 void
-pick_n_random_from_list(cache_block_t *ptr, ul stride, ul sz, ul offset, ul n)
+pick_n_random_from_list(cache_block_t *set, unsigned long stride, unsigned long set_size, unsigned long n)
 {
-	unsigned int count = 1, i = 0;
-	unsigned int len = ((sz - (offset * sizeof(cache_block_t))) / stride);
-	cache_block_t *e = ptr;
-	e->prev = NULL;
-	e->set = -1;
-	ul *array = (ul *)calloc(len, sizeof(ul));
-	for (i = 1; i < len - 1; i++) {
-		array[i] = i * (stride / sizeof(cache_block_t));
+	unsigned int num_blocks = set_size / stride; // Calculate number of blocks in the set.
+	cache_block_t *current_block = set;
+	current_block->prev = NULL; // Initialize the first block.
+	current_block->set = -1;
+
+	// Allocate an array to hold block indices for random selection.
+	unsigned long *indices = (unsigned long *)calloc(num_blocks, sizeof(unsigned long));
+	for (unsigned int i = 0; i < num_blocks; i++) {
+		indices[i] = i * (stride / sizeof(cache_block_t)); // Calculate proper index based on stride.
 	}
-	for (i = 1; i < len - 1; i++) {
-		size_t j = i + rand() / (RAND_MAX / (len - i) + 1);
-		int t = array[j];
-		array[j] = array[i];
-		array[i] = t;
+
+	// Shuffle indices using the Fisher-Yates algorithm.
+	for (unsigned int i = 0; i < num_blocks - 1; i++) {
+		size_t rand_index = i + rand() / (RAND_MAX / (num_blocks - i) + 1);
+		unsigned long temp = indices[rand_index];
+		indices[rand_index] = indices[i];
+		indices[i] = temp;
 	}
-	for (i = 1; i < len && count < n; i++) {
-		if (ptr[array[i]].set == -2) {
-			e->next = &ptr[array[i]];
-			ptr[array[i]].prev = e;
-			ptr[array[i]].set = -1;
-			e = e->next;
-			count++;
+
+	// Link n randomly selected blocks.
+	unsigned int selected_count = 1; // Start with 1 to account for the initial block.
+	for (unsigned int i = 0; i < num_blocks && selected_count < n; i++) {
+		if (set[indices[i]].set == -2) { // Check if the block is eligible for selection.
+			current_block->next = &set[indices[i]]; // Link the block.
+			set[indices[i]].prev = current_block;
+			set[indices[i]].set = -1;
+			current_block = current_block->next;
+			selected_count++;
 		}
 	}
-	free(array);
-	e->next = NULL;
+
+	free(indices); // Free the allocated indices array.
+	current_block->next = NULL; // Mark the end of the list.
 }
 
 void
