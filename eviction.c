@@ -237,39 +237,3 @@ pick:
 
 	return ret;
 }
-
-int
-main()
-{
-	int seed = time(NULL);
-	srand(seed);
-
-	struct eviction_config_t conf = {
-		.rounds = 10,
-		.cal_rounds = 1000000,
-		.stride = 4096,
-		.cache_size = 12 << 20,
-		.cache_way = 16,
-		.cache_slices = 6,
-		.initial_set_size = 4096,
-	};
-
-	char *buffer = (char *)mmap(NULL, 1 << 30, PROT_READ | PROT_WRITE,
-				  MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);
-	if (buffer == MAP_FAILED) {
-		printf("[!] Error: Memory allocation failed\n");
-		return 1;
-	}
-
-	// Consider the first 128MB as pool
-	unsigned long long pool_sz = 128 << 20;
-    char* pool = &buffer[0];
-    char* victim = &buffer[1 << 29];
-
-	if (find_evsets(pool, pool_sz, victim, conf)) {
-		printf("[-] Could not find all desired eviction sets.\n");
-	}
-
-	munmap(buffer, 1 << 30);
-	return 0;
-}
