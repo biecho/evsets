@@ -133,8 +133,16 @@ find_evsets(char *pool, unsigned long pool_sz, char *victim, struct config conf)
 
 	clock_t tts, tte;
 	int rep = 0;
-	tts = clock();
 
+	conf.threshold = calibrate(victim, &conf);
+	printf("[+] Calibrated Threshold = %d\n", conf.threshold);
+
+	if (conf.threshold < 0) {
+		printf("[!] Error: calibration\n");
+		return 1;
+	}
+
+	tts = clock();
 pick:
 
 	set = (cache_block_t *)&pool[0];
@@ -246,14 +254,6 @@ main()
 
     char* pool = &buffer[0];
     char* victim = &buffer[1 << 29];
-
-	conf.threshold = calibrate(victim, &conf);
-	printf("[+] Calibrated Threshold = %d\n", conf.threshold);
-
-	if (conf.threshold < 0) {
-		printf("[!] Error: calibration\n");
-		return 1;
-	}
 
 	if (find_evsets(pool, pool_sz, victim, conf)) {
 		printf("[-] Could not find all desired eviction sets.\n");
