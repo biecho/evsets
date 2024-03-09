@@ -152,7 +152,7 @@ static int colors = 0;
 int
 find_evsets(char *probe, char *pool, unsigned long pool_sz, char *victim, int threshold)
 {
-	cache_block_t *ptr = NULL;
+	cache_block_t *set = NULL;
 	cache_block_t *can = NULL;
 
 	*victim = 0; // touch line
@@ -163,27 +163,17 @@ find_evsets(char *probe, char *pool, unsigned long pool_sz, char *victim, int th
 
 pick:
 
-	ptr = (cache_block_t *)&pool[0];
-	initialize_list(ptr, pool_sz);
+	set = (cache_block_t *)&pool[0];
+	initialize_list(set, pool_sz);
 
-	pick_n_random_from_list(ptr, conf.stride, pool_sz, conf.buffer_size);
-	if (list_length(ptr) != conf.buffer_size) {
+	int n = conf.buffer_size;
+	pick_n_random_from_list(set, conf.stride, pool_sz, n);
+	if (list_length(set) != n) {
 		printf("[!] Error: broken list\n");
 		return 1;
 	}
 
-	int ret = 0;
-	if (conf.flags & FLAG_DEBUG) {
-		conf.flags |= FLAG_VERIFY;
-		conf.flags &= ~(FLAG_FINDALLCOLORS | FLAG_FINDALLCONGRUENT);
-		printf("[+] Filter: %d congruent, %d non-congruent addresses\n", conf.con, conf.noncon);
-		ret = filter(&ptr, victim, conf.con, conf.noncon, &conf);
-		if (ret && (conf.flags & FLAG_RETRY)) {
-			return 1;
-		}
-	}
-
-	ret = tests_avg(ptr, victim, conf.rounds, threshold);
+	int ret = tests_avg(set, victim, conf.rounds, threshold);
 
 	if ((victim || conf.algorithm == ALGORITHM_LINEAR) && ret) {
 		printf("[+] Initial candidate set evicted victim\n");
@@ -197,7 +187,7 @@ pick:
 			printf("[!] Error: exceeded max repetitions\n");
 		}
 		if (conf.flags & FLAG_VERIFY) {
-			recheck(ptr, victim, true, &conf);
+			recheck(set, victim, true, &conf);
 		}
 		return 1;
 	}
@@ -208,16 +198,16 @@ pick:
 	int id = num_evsets;
 	// Iterate over all colors of conf.offset
 	do {
-		printf("[+] Created linked list structure (%d elements)\n", list_length(ptr));
+		printf("[+] Created linked list structure (%d elements)\n", list_length(set));
 
 		printf("[+] Starting group reduction...\n");
 		ts = clock();
-		ret = gt_eviction(&ptr, &can, victim);
+		ret = gt_eviction(&set, &can, victim);
 		te = clock();
 
 		tte = clock();
 
-		len = list_length(ptr);
+		len = list_length(set);
 		if (ret) {
 			printf("[!] Error: optimal eviction set not found (length=%d)\n", len);
 		} else {
@@ -228,18 +218,18 @@ pick:
 			// Re-Check that it's an optimal eviction set
 			printf("[+] (ID=%d) Found minimal eviction set for %p (length=%d): ", id,
 			       (void *)victim, len);
-			print_list(ptr);
-			evsets[id] = ptr;
+			print_list(set);
+			evsets[id] = set;
 			num_evsets += 1;
 		}
 
 		if (conf.flags & FLAG_VERIFY) {
-			recheck(ptr, victim, ret, &conf);
+			recheck(set, victim, ret, &conf);
 		}
 
 		if (ret && (conf.flags & FLAG_RETRY)) {
 			if (rep < MAX_REPS) {
-				list_concat(&ptr, can);
+				list_concat(&set, can);
 				can = NULL;
 				rep++;
 				if (!(conf.flags & FLAG_CONFLICTSET) && !(conf.flags & FLAG_FINDALLCOLORS)) {
@@ -258,18 +248,18 @@ pick:
 		} else if (!ret) {
 			rep = 0;
 		} else {
-			list_concat(&ptr, can);
+			list_concat(&set, can);
 			can = NULL;
 		}
 
 		// Remove rest of congruent elements
 		list_set_id(evsets[id], id);
-		ptr = can;
+		set = can;
 		if (conf.flags & FLAG_FINDALLCONGRUENT) {
 			cache_block_t *e = NULL, *head = NULL, *done = NULL, *tmp = NULL;
 			int count = 0, t = 0;
-			while (ptr) {
-				e = list_pop(&ptr);
+			while (set) {
+				e = list_pop(&set);
 				t = tests_avg(evsets[id], (char *)e, conf.rounds, threshold);
 				if (t) {
 					// create list of congruents
@@ -285,7 +275,7 @@ pick:
 			}
 			printf("[+] Found %d more congruent elements from set id=%d\n", count, id);
 			list_concat(&evsets[id], head);
-			ptr = done;
+			set = done;
 		}
 
 		if (!(conf.flags & FLAG_FINDALLCOLORS)) {
@@ -293,7 +283,7 @@ pick:
 		}
 		printf("----------------------\n");
 		id = id + 1;
-		if (id == colors || !ptr || ((conf.flags & FLAG_CONFLICTSET) && !victim) ||
+		if (id == colors || !set || ((conf.flags & FLAG_CONFLICTSET) && !victim) ||
 		    (!(conf.flags & FLAG_CONFLICTSET) && victim >= probe + pool_sz - conf.stride)) {
 			printf("[+] Found all eviction sets in buffer\n");
 			break;
@@ -324,9 +314,9 @@ pick:
 				}
 				if (!ret) {
 					// Rest of initial eviction set can evict victim
-					ret2 = tests_avg(ptr, victim, conf.rounds, threshold);
+					ret2 = tests_avg(set, victim, conf.rounds, threshold);
 				}
-			} while ((list_length(ptr) > conf.cache_way) && !ret2 &&
+			} while ((list_length(set) > conf.cache_way) && !ret2 &&
 				 (((conf.flags & FLAG_CONFLICTSET) && victim) ||
 				  (!(conf.flags & FLAG_CONFLICTSET) &&
 				   (victim < (probe + pool_sz - conf.stride)))));
