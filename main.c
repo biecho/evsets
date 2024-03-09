@@ -178,7 +178,6 @@ pick:
 
 	if (victim && ret) {
 		printf("[+] Initial candidate set evicted victim\n");
-		// rep = 0;
 	} else {
 		printf("[!] Error: invalid candidate set\n");
 		if ((conf.flags & FLAG_RETRY) && rep < MAX_REPS) {
@@ -200,8 +199,8 @@ pick:
 	// Iterate over all colors of conf.offset
 	do {
 		printf("[+] Created linked list structure (%d elements)\n", list_length(set));
-
 		printf("[+] Starting group reduction...\n");
+
 		ts = clock();
 		ret = gt_eviction(&set, &can, victim);
 		te = clock();
@@ -228,7 +227,7 @@ pick:
 			recheck(set, victim, ret, &conf);
 		}
 
-		if (ret && (conf.flags & FLAG_RETRY)) {
+		if (ret) {
 			if (rep < MAX_REPS) {
 				list_concat(&set, can);
 				can = NULL;
