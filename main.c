@@ -186,9 +186,6 @@ pick:
 		} else if (rep >= MAX_REPS) {
 			printf("[!] Error: exceeded max repetitions\n");
 		}
-		if (conf.flags & FLAG_VERIFY) {
-			recheck(set, victim, true, &conf);
-		}
 		return 1;
 	}
 
@@ -221,10 +218,6 @@ pick:
 			print_list(set);
 			evsets[id] = set;
 			num_evsets += 1;
-		}
-
-		if (conf.flags & FLAG_VERIFY) {
-			recheck(set, victim, ret, &conf);
 		}
 
 		if (ret) {

@@ -62,6 +62,5 @@ maccess(void *p)
 
 ul vtop(ul vaddr);
 ul ptos(ul paddr, ul slicebits);
-void recheck(cache_block_t *ptr, char *victim, bool err, struct config *conf);
 
 #endif /* micro_H */
