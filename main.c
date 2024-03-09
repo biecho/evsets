@@ -1,5 +1,4 @@
 #include "cache.h"
-#include "hist_utils.h"
 #include "list_utils.h"
 #include "public_structs.h"
 #include <fcntl.h>
