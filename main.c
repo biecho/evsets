@@ -28,7 +28,6 @@ struct config conf = {
 	.strategy = 2,
 	.offset = 0,
 	.buffer_size = 3072,
-	.traverse = &traverse_list_simple,
 };
 
 #define MAX_REPS_BACK 100

@@ -21,7 +21,6 @@ struct config {
 	int threshold;
 	int strategy;
 	int offset;
-	void (*traverse)(cache_block_t *);
 };
 
 #endif /* public_structs_H */
