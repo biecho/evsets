@@ -1,6 +1,5 @@
 #include "cache.h"
 #include "list_utils.h"
-#include "public_structs.h"
 #include "eviction.h"
 
 #include <fcntl.h>
@@ -137,7 +136,7 @@ gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim, int cache_wa
 }
 
 int
-find_evsets(char *pool, unsigned long pool_sz, char *victim, struct config conf)
+find_evsets(char *pool, unsigned long pool_sz, char *victim, struct eviction_config_t conf)
 {
 	cache_block_t *set = NULL;
 	cache_block_t *can = NULL;
@@ -245,7 +244,7 @@ main()
 	int seed = time(NULL);
 	srand(seed);
 
-	struct config conf = {
+	struct eviction_config_t conf = {
 		.rounds = 10,
 		.cal_rounds = 1000000,
 		.stride = 4096,

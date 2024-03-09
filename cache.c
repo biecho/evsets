@@ -1,5 +1,5 @@
 #include "cache.h"
-#include "public_structs.h"
+#include "eviction.h"
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -190,7 +190,7 @@ tests_avg(cache_block_t *set, char *victim, int rep, int threshold)
 }
 
 int
-calibrate(char *victim, struct config *conf)
+calibrate(char *victim, struct eviction_config_t *conf)
 {
 	size_t delta, time, t_flushed, t_unflushed;
 	struct histogram *flushed, *unflushed;

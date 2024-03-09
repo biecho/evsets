@@ -1,7 +1,6 @@
 #include "cache.h"
 #include "eviction.h"
 #include "list_utils.h"
-#include "public_structs.h"
 
 #include <fcntl.h>
 #include <getopt.h>
@@ -23,7 +22,7 @@ main()
 	int seed = time(NULL);
 	srand(seed);
 
-	struct config conf = {
+	struct eviction_config_t conf = {
 		.rounds = 10,
 		.cal_rounds = 1000000,
 		.stride = 4096,

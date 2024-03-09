@@ -1,7 +1,6 @@
 #include "list_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "public_structs.h"
 
 int
 list_length(cache_block_t *ptr)

@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "cache.h"
+#include "eviction.h"
 
 int list_length(cache_block_t *ptr);
 void list_split(cache_block_t *ptr, cache_block_t **chunks, int n);
