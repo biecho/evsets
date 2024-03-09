@@ -48,7 +48,7 @@ destroy_counter()
 #endif
 
 inline void
-traverse_list_skylake(Elem *ptr)
+traverse_list_skylake(cache_block_t *ptr)
 {
 	while (ptr && ptr->next && ptr->next->next) {
 		maccess(ptr);
@@ -62,7 +62,7 @@ traverse_list_skylake(Elem *ptr)
 }
 
 inline void
-traverse_list_asm_skylake(Elem *ptr)
+traverse_list_asm_skylake(cache_block_t *ptr)
 {
 	__asm__ volatile("test %%rcx, %%rcx;"
 			 "jz out;"
@@ -86,7 +86,7 @@ traverse_list_asm_skylake(Elem *ptr)
 }
 
 inline void
-traverse_list_asm_haswell(Elem *ptr)
+traverse_list_asm_haswell(cache_block_t *ptr)
 {
 	__asm__ volatile("test %%rcx, %%rcx;"
 			 "jz out2;"
@@ -106,7 +106,7 @@ traverse_list_asm_haswell(Elem *ptr)
 }
 
 inline void
-traverse_list_asm_simple(Elem *ptr)
+traverse_list_asm_simple(cache_block_t *ptr)
 {
 	__asm__ volatile("loop3:"
 			 "test %%rcx, %%rcx;"
@@ -120,7 +120,7 @@ traverse_list_asm_simple(Elem *ptr)
 }
 
 inline void
-traverse_list_haswell(Elem *ptr)
+traverse_list_haswell(cache_block_t *ptr)
 {
 	while (ptr && ptr->next) {
 		maccess(ptr);
@@ -132,7 +132,7 @@ traverse_list_haswell(Elem *ptr)
 }
 
 inline void
-traverse_list_simple(Elem *ptr)
+traverse_list_simple(cache_block_t *ptr)
 {
 	while (ptr) {
 		maccess(ptr);
@@ -141,9 +141,9 @@ traverse_list_simple(Elem *ptr)
 }
 
 inline void
-traverse_list_rrip(Elem *ptr)
+traverse_list_rrip(cache_block_t *ptr)
 {
-	Elem *p, *s = ptr;
+	cache_block_t *p, *s = ptr;
 	while (ptr) {
 		p = ptr;
 		maccess(ptr);
@@ -162,7 +162,7 @@ traverse_list_rrip(Elem *ptr)
 }
 
 inline void
-traverse_list_to_n(Elem *ptr, int n)
+traverse_list_to_n(cache_block_t *ptr, int n)
 {
 	while (ptr && n-- > 0) {
 		maccess(ptr);
@@ -171,7 +171,7 @@ traverse_list_to_n(Elem *ptr, int n)
 }
 
 inline void
-traverse_list_time(Elem *ptr, void (*trav)(Elem *))
+traverse_list_time(cache_block_t *ptr, void (*trav)(cache_block_t *))
 {
 	size_t time;
 	trav(ptr);
@@ -186,7 +186,7 @@ traverse_list_time(Elem *ptr, void (*trav)(Elem *))
 }
 
 int
-test_set(Elem *ptr, char *victim, void (*trav)(Elem *))
+test_set(cache_block_t *ptr, char *victim, void (*trav)(cache_block_t *))
 {
 	maccess(victim);
 	maccess(victim);
@@ -213,10 +213,10 @@ test_set(Elem *ptr, char *victim, void (*trav)(Elem *))
 }
 
 int
-test_and_time(Elem *ptr, int rep, int threshold, int ways, void (*trav)(Elem *))
+test_and_time(cache_block_t *ptr, int rep, int threshold, int ways, void (*trav)(cache_block_t *))
 {
 	int i = 0, count = 0;
-	Elem *tmp = ptr;
+	cache_block_t *tmp = ptr;
 	while (tmp) {
 		tmp->delta = 0;
 		tmp = tmp->next;
@@ -236,10 +236,10 @@ test_and_time(Elem *ptr, int rep, int threshold, int ways, void (*trav)(Elem *))
 }
 
 int
-tests_avg(Elem *ptr, char *victim, int rep, int threshold, void (*trav)(Elem *))
+tests_avg(cache_block_t *ptr, char *victim, int rep, int threshold, void (*trav)(cache_block_t *))
 {
 	int i = 0, ret = 0, delta = 0;
-	Elem *vic = (Elem *)victim;
+	cache_block_t *vic = (cache_block_t *)victim;
 	vic->delta = 0;
 	for (i = 0; i < rep; i++) {
 		delta = test_set(ptr, victim, trav);
@@ -251,7 +251,7 @@ tests_avg(Elem *ptr, char *victim, int rep, int threshold, void (*trav)(Elem *))
 }
 
 int
-tests(Elem *ptr, char *victim, int rep, int threshold, float ratio, void (*trav)(Elem *))
+tests(cache_block_t *ptr, char *victim, int rep, int threshold, float ratio, void (*trav)(cache_block_t *))
 {
 	int i = 0, ret = 0, delta, hsz = rep * 100;
 	struct histogram *hist;

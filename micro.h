@@ -62,7 +62,7 @@ maccess(void *p)
 
 ul vtop(ul vaddr);
 ul ptos(ul paddr, ul slicebits);
-void recheck(Elem *ptr, char *victim, bool err, struct config *conf);
-int filter(Elem **ptr, char *vicitm, int n, int m, struct config *conf);
+void recheck(cache_block_t *ptr, char *victim, bool err, struct config *conf);
+int filter(cache_block_t **ptr, char *vicitm, int n, int m, struct config *conf);
 
 #endif /* micro_H */

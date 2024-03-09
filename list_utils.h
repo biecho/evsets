@@ -5,23 +5,23 @@
 #include "cache.h"
 #include "micro.h"
 
-int list_length(Elem *ptr);
-Elem *list_pop(Elem **ptr);
-Elem *list_shift(Elem **ptr);
-void list_push(Elem **ptr, Elem *e);
-void list_append(Elem **ptr, Elem *e);
-void list_split(Elem *ptr, Elem **chunks, int n);
-Elem *list_slice(Elem **ptr, size_t s, size_t e);
-Elem *list_get(Elem **ptr, size_t n);
-void list_concat(Elem **ptr, Elem *chunk);
-void list_from_chunks(Elem **ptr, Elem **chunks, int avoid, int len);
-void list_set_id(Elem *ptr, int id);
-void print_list(Elem *ptr);
+int list_length(cache_block_t *ptr);
+cache_block_t *list_pop(cache_block_t **ptr);
+cache_block_t *list_shift(cache_block_t **ptr);
+void list_push(cache_block_t **ptr, cache_block_t *e);
+void list_append(cache_block_t **ptr, cache_block_t *e);
+void list_split(cache_block_t *ptr, cache_block_t **chunks, int n);
+cache_block_t *list_slice(cache_block_t **ptr, size_t s, size_t e);
+cache_block_t *list_get(cache_block_t **ptr, size_t n);
+void list_concat(cache_block_t **ptr, cache_block_t *chunk);
+void list_from_chunks(cache_block_t **ptr, cache_block_t **chunks, int avoid, int len);
+void list_set_id(cache_block_t *ptr, int id);
+void print_list(cache_block_t *ptr);
 
-//void initialize_random_list(Elem *ptr, ul offset, ul sz, Elem *base);
-void initialize_list(Elem *ptr, ul sz, ul offset);
-void pick_n_random_from_list(Elem *src, ul stride, ul sz, ul offset, ul n);
-void rearrange_list(Elem **ptr, ul stride, ul sz, ul offset);
-void generate_conflict_set(Elem **ptr, Elem **out);
+//void initialize_random_list(cache_block_t *ptr, ul offset, ul sz, cache_block_t *base);
+void initialize_list(cache_block_t *ptr, ul sz, ul offset);
+void pick_n_random_from_list(cache_block_t *src, ul stride, ul sz, ul offset, ul n);
+void rearrange_list(cache_block_t **ptr, ul stride, ul sz, ul offset);
+void generate_conflict_set(cache_block_t **ptr, cache_block_t **out);
 
 #endif /* list_utils_H */

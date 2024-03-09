@@ -27,13 +27,13 @@
 #define FLAG_DEBUG (1 << 9)
 #define FLAG_CONFLICTSET (1 << 10)
 
-typedef struct elem {
-	struct elem *next;
-	struct elem *prev;
+typedef struct cache_block_t {
+	struct cache_block_t *next;
+	struct cache_block_t *prev;
 	int set;
 	size_t delta;
 	char pad[32]; // up to 64B
-} Elem;
+} cache_block_t;
 
 struct config {
 	int rounds, cal_rounds;
@@ -47,7 +47,7 @@ struct config {
 	int strategy;
 	int offset;
 	int con, noncon; // only for debug
-	void (*traverse)(Elem *);
+	void (*traverse)(cache_block_t *);
 	double ratio;
 	int flags;
 };

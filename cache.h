@@ -20,20 +20,20 @@ int create_counter();
 void destroy_counter();
 #endif /* THREAD_COUNTER */
 
-void traverse_list_skylake(Elem *ptr);
-void traverse_list_haswell(Elem *ptr);
-void traverse_list_simple(Elem *ptr);
-void traverse_list_asm_skylake(Elem *ptr);
-void traverse_list_asm_haswell(Elem *ptr);
-void traverse_list_asm_simple(Elem *ptr);
-void traverse_list_rrip(Elem *ptr);
-void traverse_list_to_n(Elem *ptr, int n);
-void traverse_list_time(Elem *ptr, void (*trav)(Elem *));
+void traverse_list_skylake(cache_block_t *ptr);
+void traverse_list_haswell(cache_block_t *ptr);
+void traverse_list_simple(cache_block_t *ptr);
+void traverse_list_asm_skylake(cache_block_t *ptr);
+void traverse_list_asm_haswell(cache_block_t *ptr);
+void traverse_list_asm_simple(cache_block_t *ptr);
+void traverse_list_rrip(cache_block_t *ptr);
+void traverse_list_to_n(cache_block_t *ptr, int n);
+void traverse_list_time(cache_block_t *ptr, void (*trav)(cache_block_t *));
 
-int test_set(Elem *ptr, char *victim, void (*trav)(Elem *));
-int tests(Elem *ptr, char *victim, int rep, int threshold, float ratio, void (*trav)(Elem *));
-int tests_avg(Elem *ptr, char *victim, int rep, int threshold, void (*trav)(Elem *));
-int test_and_time(Elem *ptr, int rep, int threshold, int ways, void (*trav)(Elem *));
+int test_set(cache_block_t *ptr, char *victim, void (*trav)(cache_block_t *));
+int tests(cache_block_t *ptr, char *victim, int rep, int threshold, float ratio, void (*trav)(cache_block_t *));
+int tests_avg(cache_block_t *ptr, char *victim, int rep, int threshold, void (*trav)(cache_block_t *));
+int test_and_time(cache_block_t *ptr, int rep, int threshold, int ways, void (*trav)(cache_block_t *));
 
 int calibrate(char *victim, struct config *conf);
 

@@ -26,7 +26,7 @@
 
 struct config conf;
 
-static Elem **evsets = NULL;
+static cache_block_t **evsets = NULL;
 static int num_evsets = 0;
 static int colors = 0;
 static char *probe = NULL;
@@ -79,7 +79,7 @@ init_evsets(struct config *conf_ptr)
 	}
 
 	printf("[+] %llu MB buffer allocated at %p (%llu blocks)\n", sz >> 20,
-	       (void *)&pool[conf.offset << 6], sz / sizeof(Elem));
+	       (void *)&pool[conf.offset << 6], sz / sizeof(cache_block_t));
 
 	if (conf.stride < 64 || conf.stride % 64 != 0) {
 		printf("[!] Error: invalid stride\n");
@@ -113,7 +113,7 @@ init_evsets(struct config *conf_ptr)
 	}
 
 	colors = conf.cache_size / conf.cache_way / conf.stride;
-	evsets = calloc(colors, sizeof(Elem *));
+	evsets = calloc(colors, sizeof(cache_block_t *));
 	if (!evsets) {
 		printf("[!] Error: allocate\n");
 		goto err;
@@ -147,7 +147,7 @@ get_num_evsets()
 	return num_evsets;
 }
 
-Elem *
+cache_block_t *
 get_evset(int id)
 {
 	if (id >= num_evsets) {
@@ -161,8 +161,8 @@ int
 find_evsets()
 {
 	char *victim = NULL;
-	Elem *ptr = NULL;
-	Elem *can = NULL;
+	cache_block_t *ptr = NULL;
+	cache_block_t *can = NULL;
 
 	victim = &probe[conf.offset << 6];
 	*victim = 0; // touch line
@@ -191,7 +191,7 @@ find_evsets()
 	tts = clock();
 pick:
 
-	ptr = (Elem *)&pool[conf.offset << 6];
+	ptr = (cache_block_t *)&pool[conf.offset << 6];
 	initialize_list(ptr, pool_sz, conf.offset);
 
 	// Conflict set incompatible with ANY case (don't needed)
@@ -203,7 +203,7 @@ pick:
 		ptr = can; // new conflict set
 		while (victim &&
 		       !tests(ptr, victim, conf.rounds, conf.threshold, conf.ratio, conf.traverse)) {
-			victim = (char *)(((Elem *)victim)->next);
+			victim = (char *)(((cache_block_t *)victim)->next);
 		}
 		can = NULL;
 	} else {
@@ -349,7 +349,7 @@ pick:
 		list_set_id(evsets[id], id);
 		ptr = can;
 		if (conf.flags & FLAG_FINDALLCONGRUENT) {
-			Elem *e = NULL, *head = NULL, *done = NULL, *tmp = NULL;
+			cache_block_t *e = NULL, *head = NULL, *done = NULL, *tmp = NULL;
 			int count = 0, t = 0;
 			while (ptr) {
 				e = list_pop(&ptr);
@@ -397,7 +397,7 @@ pick:
 					victim += conf.stride;
 					*victim = 0;
 				} else {
-					victim = (char *)((Elem *)victim)->next;
+					victim = (char *)((cache_block_t *)victim)->next;
 				}
 
 				// Check again. Better reorganize this mess.

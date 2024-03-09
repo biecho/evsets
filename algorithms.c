@@ -10,9 +10,9 @@
 extern struct config conf;
 
 int
-naive_eviction(Elem **ptr, Elem **can, char *victim)
+naive_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 {
-	Elem *candidate = NULL;
+	cache_block_t *candidate = NULL;
 	int len = 0, cans = 0, i = 0, fail = 0, ret = 0, repeat = 0;
 
 	len = list_length(*ptr);
@@ -76,9 +76,9 @@ naive_eviction(Elem **ptr, Elem **can, char *victim)
 }
 
 int
-naive_eviction_optimistic(Elem **ptr, Elem **can, char *victim)
+naive_eviction_optimistic(cache_block_t **ptr, cache_block_t **can, char *victim)
 {
-	Elem *candidate = NULL, *es = NULL;
+	cache_block_t *candidate = NULL, *es = NULL;
 	int len = 0, cans = 0, elen = 0, i = 0, ret = 0;
 
 	len = list_length(*ptr);
@@ -137,10 +137,10 @@ naive_eviction_optimistic(Elem **ptr, Elem **can, char *victim)
 }
 
 int
-gt_eviction(Elem **ptr, Elem **can, char *victim)
+gt_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 {
 	// Random chunk selection
-	Elem **chunks = (Elem **)calloc(conf.cache_way + 1, sizeof(Elem *));
+	cache_block_t **chunks = (cache_block_t **)calloc(conf.cache_way + 1, sizeof(cache_block_t *));
 	if (!chunks) {
 		return 1;
 	}
@@ -158,7 +158,7 @@ gt_eviction(Elem **ptr, Elem **can, char *victim)
 	int h = ceil(log(sz) / log(rate)), l = 0;
 
 	// Backtrack record
-	Elem **back = (Elem **)calloc(h * 2, sizeof(Elem *)); // TODO: check height bound
+	cache_block_t **back = (cache_block_t **)calloc(h * 2, sizeof(cache_block_t *)); // TODO: check height bound
 	if (!back) {
 		free(chunks);
 		free(ichunks);
@@ -253,9 +253,9 @@ gt_eviction(Elem **ptr, Elem **can, char *victim)
 }
 
 int
-gt_eviction_any(Elem **ptr, Elem **can)
+gt_eviction_any(cache_block_t **ptr, cache_block_t **can)
 {
-	Elem **chunks = (Elem **)calloc(conf.cache_way + 2, sizeof(Elem *));
+	cache_block_t **chunks = (cache_block_t **)calloc(conf.cache_way + 2, sizeof(cache_block_t *));
 	if (!chunks) {
 		return 1;
 	}
@@ -274,7 +274,7 @@ gt_eviction_any(Elem **ptr, Elem **can)
 	int h = ceil(log(sz) / log(rate)), l = 0;
 
 	// Backtrack record
-	Elem **back = calloc(h * 2, sizeof(Elem *)); // TODO: check height bound
+	cache_block_t **back = calloc(h * 2, sizeof(cache_block_t *)); // TODO: check height bound
 	if (!back) {
 		free(chunks);
 		free(ichunks);
@@ -355,13 +355,13 @@ gt_eviction_any(Elem **ptr, Elem **can)
 }
 
 int
-binary_eviction(Elem **ptr, Elem **can, char *victim)
+binary_eviction(cache_block_t **ptr, cache_block_t **can, char *victim)
 {
 	// shameful inneficient implementation with lists...
 	// any good way to add backtracking?
 	int olen = list_length(*ptr), len, cans, count = 0, i = 0, ret = 0;
 	double x = 0, pivot = 0, laste = 0, lastn = 0;
-	Elem *positive = NULL;
+	cache_block_t *positive = NULL;
 	while (count < conf.cache_way) {
 		x = 1;
 		laste = (double)olen;

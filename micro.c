@@ -66,7 +66,7 @@ ptos(ul paddr, ul slices)
 }
 
 void
-recheck(Elem *ptr, char *victim, bool err, struct config *conf)
+recheck(cache_block_t *ptr, char *victim, bool err, struct config *conf)
 {
 	unsigned int cache_sets = conf->cache_size / LINE_SIZE / conf->cache_way / conf->cache_slices;
 	ul vpaddr = 0, paddr = 0, vcacheset = 0, cacheset = 0, vslice = 0, slice = 0;
@@ -125,10 +125,10 @@ recheck(Elem *ptr, char *victim, bool err, struct config *conf)
 }
 
 int
-filter(Elem **ptr, char *victim, int n, int m, struct config *conf)
+filter(cache_block_t **ptr, char *victim, int n, int m, struct config *conf)
 {
 	unsigned int cache_sets = conf->cache_size / LINE_SIZE / conf->cache_way / conf->cache_slices;
-	Elem *tmp = *ptr, *prev = NULL;
+	cache_block_t *tmp = *ptr, *prev = NULL;
 	ul vpaddr = vtop((ul)victim), vslice = ptos(vpaddr, conf->cache_slices);
 	ul vcacheset = (vpaddr >> LINE_BITS) & (cache_sets - 1);
 	ul cacheset = 0, paddr = 0, slice = 0;

@@ -5,7 +5,7 @@
 extern struct config conf;
 
 int
-list_length(Elem *ptr)
+list_length(cache_block_t *ptr)
 {
 	int l = 0;
 	while (ptr) {
@@ -17,7 +17,7 @@ list_length(Elem *ptr)
 
 /* add element to the head of the list */
 void
-list_push(Elem **ptr, Elem *e)
+list_push(cache_block_t **ptr, cache_block_t *e)
 {
 	if (!e) {
 		return;
@@ -32,9 +32,9 @@ list_push(Elem **ptr, Elem *e)
 
 /* add element to the end of the list */
 void
-list_append(Elem **ptr, Elem *e)
+list_append(cache_block_t **ptr, cache_block_t *e)
 {
-	Elem *tmp = *ptr;
+	cache_block_t *tmp = *ptr;
 	if (!e) {
 		return;
 	}
@@ -51,10 +51,10 @@ list_append(Elem **ptr, Elem *e)
 }
 
 /* remove and return last element of list */
-Elem *
-list_shift(Elem **ptr)
+cache_block_t *
+list_shift(cache_block_t **ptr)
 {
-	Elem *tmp = (ptr) ? *ptr : NULL;
+	cache_block_t *tmp = (ptr) ? *ptr : NULL;
 	if (!tmp) {
 		return NULL;
 	}
@@ -72,10 +72,10 @@ list_shift(Elem **ptr)
 }
 
 /* remove and return first element of list */
-Elem *
-list_pop(Elem **ptr)
+cache_block_t *
+list_pop(cache_block_t **ptr)
 {
-	Elem *tmp = (ptr) ? *ptr : NULL;
+	cache_block_t *tmp = (ptr) ? *ptr : NULL;
 	if (!tmp) {
 		return NULL;
 	}
@@ -89,7 +89,7 @@ list_pop(Elem **ptr)
 }
 
 void
-list_split(Elem *ptr, Elem **chunks, int n)
+list_split(cache_block_t *ptr, cache_block_t **chunks, int n)
 {
 	if (!ptr) {
 		return;
@@ -114,10 +114,10 @@ list_split(Elem *ptr, Elem **chunks, int n)
 	}
 }
 
-Elem *
-list_get(Elem **ptr, size_t n)
+cache_block_t *
+list_get(cache_block_t **ptr, size_t n)
 {
-	Elem *tmp = *ptr;
+	cache_block_t *tmp = *ptr;
 	size_t i = 0;
 	if (!tmp) {
 		return NULL;
@@ -142,10 +142,10 @@ list_get(Elem **ptr, size_t n)
 	return tmp;
 }
 
-Elem *
-list_slice(Elem **ptr, size_t s, size_t e)
+cache_block_t *
+list_slice(cache_block_t **ptr, size_t s, size_t e)
 {
-	Elem *tmp = (ptr) ? *ptr : NULL, *ret = NULL;
+	cache_block_t *tmp = (ptr) ? *ptr : NULL, *ret = NULL;
 	size_t i = 0;
 	if (!tmp) {
 		return NULL;
@@ -181,9 +181,9 @@ list_slice(Elem **ptr, size_t s, size_t e)
 
 /* concat chunk of elements to the end of the list */
 void
-list_concat(Elem **ptr, Elem *chunk)
+list_concat(cache_block_t **ptr, cache_block_t *chunk)
 {
-	Elem *tmp = (ptr) ? *ptr : NULL;
+	cache_block_t *tmp = (ptr) ? *ptr : NULL;
 	if (!tmp) {
 		*ptr = chunk;
 		return;
@@ -198,14 +198,14 @@ list_concat(Elem **ptr, Elem *chunk)
 }
 
 void
-list_from_chunks(Elem **ptr, Elem **chunks, int avoid, int len)
+list_from_chunks(cache_block_t **ptr, cache_block_t **chunks, int avoid, int len)
 {
 	int next = (avoid + 1) % len;
 	if (!(*ptr) || !chunks || !chunks[next]) {
 		return;
 	}
 	// Disconnect avoided chunk
-	Elem *tmp = chunks[avoid];
+	cache_block_t *tmp = chunks[avoid];
 	if (tmp) {
 		tmp->prev = NULL;
 	}
@@ -241,7 +241,7 @@ list_from_chunks(Elem **ptr, Elem **chunks, int avoid, int len)
 }
 
 void
-print_list(Elem *ptr)
+print_list(cache_block_t *ptr)
 {
 	if (!ptr) {
 		printf("(empty)\n");
@@ -255,10 +255,10 @@ print_list(Elem *ptr)
 }
 
 void
-initialize_list(Elem *src, ul sz, ul offset)
+initialize_list(cache_block_t *src, ul sz, ul offset)
 {
 	unsigned int j = 0;
-	for (j = 0; j < (sz / sizeof(Elem)) - offset; j++) {
+	for (j = 0; j < (sz / sizeof(cache_block_t)) - offset; j++) {
 		src[j].set = -2;
 		src[j].delta = 0;
 		src[j].prev = NULL;
@@ -267,16 +267,16 @@ initialize_list(Elem *src, ul sz, ul offset)
 }
 
 void
-pick_n_random_from_list(Elem *ptr, ul stride, ul sz, ul offset, ul n)
+pick_n_random_from_list(cache_block_t *ptr, ul stride, ul sz, ul offset, ul n)
 {
 	unsigned int count = 1, i = 0;
-	unsigned int len = ((sz - (offset * sizeof(Elem))) / stride);
-	Elem *e = ptr;
+	unsigned int len = ((sz - (offset * sizeof(cache_block_t))) / stride);
+	cache_block_t *e = ptr;
 	e->prev = NULL;
 	e->set = -1;
 	ul *array = (ul *)calloc(len, sizeof(ul));
 	for (i = 1; i < len - 1; i++) {
-		array[i] = i * (stride / sizeof(Elem));
+		array[i] = i * (stride / sizeof(cache_block_t));
 	}
 	for (i = 1; i < len - 1; i++) {
 		size_t j = i + rand() / (RAND_MAX / (len - i) + 1);
@@ -298,14 +298,14 @@ pick_n_random_from_list(Elem *ptr, ul stride, ul sz, ul offset, ul n)
 }
 
 void
-rearrange_list(Elem **ptr, ul stride, ul sz, ul offset)
+rearrange_list(cache_block_t **ptr, ul stride, ul sz, ul offset)
 {
-	unsigned int len = (sz / sizeof(Elem)) - offset, i = 0;
-	Elem *p = *ptr;
+	unsigned int len = (sz / sizeof(cache_block_t)) - offset, i = 0;
+	cache_block_t *p = *ptr;
 	if (!p) {
 		return;
 	}
-	unsigned int j = 0, step = stride / sizeof(Elem);
+	unsigned int j = 0, step = stride / sizeof(cache_block_t);
 	for (i = step; i < len - 1; i += step) {
 		if (p[i].set < 0) {
 			p[i].set = -2;
@@ -327,7 +327,7 @@ rearrange_list(Elem **ptr, ul stride, ul sz, ul offset)
 }
 
 void
-list_set_id(Elem *ptr, int id)
+list_set_id(cache_block_t *ptr, int id)
 {
 	while (ptr) {
 		ptr->set = id;
@@ -336,9 +336,9 @@ list_set_id(Elem *ptr, int id)
 }
 
 void
-generate_conflict_set(Elem **ptr, Elem **out)
+generate_conflict_set(cache_block_t **ptr, cache_block_t **out)
 {
-	Elem *candidate = NULL, *res = NULL;
+	cache_block_t *candidate = NULL, *res = NULL;
 	int ret = 0;
 	while (*ptr) // or while size |out| == limit
 	{
