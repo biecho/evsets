@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "private_structs.h"
+#include "public_structs.h"
 
 void traverse_list_simple(cache_block_t *ptr);
 
