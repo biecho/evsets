@@ -150,7 +150,7 @@ static int num_evsets = 0;
 static int colors = 0;
 
 int
-find_evsets(char *probe, char *pool, unsigned long pool_sz, char *victim, int threshold)
+find_evsets(char *pool, unsigned long pool_sz, char *victim, int threshold)
 {
 	cache_block_t *set = NULL;
 	cache_block_t *can = NULL;
@@ -452,7 +452,7 @@ main(int argc, char **argv)
 		return 1;
 	}
 
-	if (find_evsets(probe, pool, pool_sz, victim, conf.threshold)) {
+	if (find_evsets(pool, pool_sz, victim, conf.threshold)) {
 		printf("[-] Could not find all desired eviction sets.\n");
 	}
 
