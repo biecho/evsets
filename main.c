@@ -284,7 +284,6 @@ main(int argc, char **argv)
 
 	static struct option long_options[] = { 
 						{ "backtracking", no_argument, 0, FLAG_BACKTRACKING ^ KEY },
-						{ "verify", no_argument, 0, FLAG_VERIFY ^ KEY },
 						{ "buffer-size", no_argument, 0, 'b' },
 						{ "threshold", no_argument, 0, 't' },
 						{ "ratio", no_argument, 0, 'q' },

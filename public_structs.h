@@ -10,9 +10,7 @@
 #define STRATEGY_SIMPLE 2
 
 // ./evsets -b 3072 -c 12 -n 16 -o 4096 -a g -e 2 -C 0 --verbose --retry --backtracking --verify
-#define FLAG_RETRY (1 << 3)
 #define FLAG_BACKTRACKING (1 << 4)
-#define FLAG_VERIFY (1 << 8)
 
 typedef struct cache_block_t {
 	struct cache_block_t *next;
