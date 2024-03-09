@@ -60,7 +60,4 @@ maccess(void *p)
 	__asm__ volatile("movq (%0), %%rax\n" : : "c"(p) : "rax");
 }
 
-ul vtop(ul vaddr);
-ul ptos(ul paddr, ul slicebits);
-
 #endif /* micro_H */
