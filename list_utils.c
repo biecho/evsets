@@ -128,8 +128,8 @@ print_list(cache_block_t *ptr)
 		return;
 	}
 	while (ptr != NULL) {
-		uint64_t set_index = extract_bits(ptr, 11, 6);
-		printf("Set index: 0x%llx ", set_index);
+		uint64_t set_index = extract_bits((uint64_t)ptr, 11, 6);
+		printf("Set index: 0x%lx ", set_index);
 		printf("%p\n", (void *)ptr);
 		ptr = ptr->next;
 	}

@@ -5,6 +5,8 @@
 #include "cache.h"
 #include "eviction.h"
 
+uint64_t extract_bits(uint64_t value, unsigned int n, unsigned int k);
+
 int list_length(cache_block_t *ptr);
 void list_split(cache_block_t *ptr, cache_block_t **chunks, int n);
 void list_concat(cache_block_t **ptr, cache_block_t *chunk);
